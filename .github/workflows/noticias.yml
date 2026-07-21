@@ -1,0 +1,33 @@
+name: Boletín de Noticias
+
+# Se ejecuta cada hora en punto (UTC). El script internamente revisa la hora
+# real de Chile (America/Santiago) y solo envía el mensaje si son las 9:00 o
+# las 21:00. Así el horario queda correcto todo el año, sin importar si Chile
+# está en horario de invierno o de verano.
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch: {}   # permite correrlo manualmente desde la pestaña "Actions" para probar
+
+jobs:
+  enviar-boletin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Generar y enviar boletín
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CNE_AUTH_KEY: ${{ secrets.CNE_AUTH_KEY }}
+          FORZAR_ENVIO: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+        run: python scripts/enviar_noticias.py
