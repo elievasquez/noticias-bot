@@ -27,6 +27,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CNE_EMAIL: ${{ secrets.CNE_EMAIL }}
+          CNE_PASSWORD: ${{ secrets.CNE_PASSWORD }}
           FORZAR_ENVIO: "true" # Obliga al script a enviar la prueba ahora mismo
         run: |
           python scripts/enviar_noticias.py
