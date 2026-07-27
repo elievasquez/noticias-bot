@@ -99,19 +99,37 @@ def _haversine_km(lat1, lon1, lat2, lon2):
 
 def mejores_precios_combustible():
     estaciones = obtener_estaciones_cne()
-    mejores = {"93": {"monto": "—", "ciudad": "—"}, "95": {"monto": "—", "ciudad": "—"}, "97": {"monto": "—", "ciudad": "—"}, "Diésel": {"monto": "—", "ciudad": "—"}}
-    if not estaciones: return mejores
+    mejores = {
+        "93": {"monto": "—", "ciudad": "—"},
+        "95": {"monto": "—", "ciudad": "—"},
+        "97": {"monto": "—", "ciudad": "—"},
+        "Diésel": {"monto": "—", "ciudad": "—"}
+    }
+    if not estaciones: 
+        return mejores
     
     precios_min = {}
     for est in estaciones:
         ubic = est.get("ubicacion") or {}
-        comuna = ubic.get("comuna", "Maule")
+        
+        # Extraer correctamente el nombre de la comuna desde el objeto/dict o string
+        comuna_raw = ubic.get("comuna")
+        if isinstance(comuna_raw, dict):
+            comuna = comuna_raw.get("nombre") or comuna_raw.get("nom_comuna") or "Maule"
+        elif isinstance(comuna_raw, str):
+            comuna = comuna_raw
+        else:
+            comuna = "Maule"
+
         try:
             elat, elon = float(ubic.get("latitud")), float(ubic.get("longitud"))
-        except (TypeError, ValueError): continue
+        except (TypeError, ValueError): 
+            continue
         
+        # Verificar si la estación está dentro del radio de 15 km de alguna de tus ciudades
         cerca = any(_haversine_km(datos["lat"], datos["lon"], elat, elon) <= RADIO_KM_COMBUSTIBLE for datos in CIUDADES.values())
-        if not cerca: continue
+        if not cerca: 
+            continue
 
         precios = est.get("precios") or {}
         mapeo = {"93": ["93", "A93"], "95": ["95", "A95"], "97": ["97", "A97"], "Diésel": ["DI", "ADI"]}
@@ -122,7 +140,8 @@ def mejores_precios_combustible():
                         p = float(precios[k].get("precio"))
                         if p > 0 and (k_label not in precios_min or p < precios_min[k_label][0]):
                             precios_min[k_label] = (p, comuna)
-                    except (TypeError, ValueError): pass
+                    except (TypeError, ValueError): 
+                        pass
 
     for k, v in precios_min.items():
         mejores[k] = {"monto": f"${v[0]:,.0f}".replace(",", "."), "ciudad": v[1]}
