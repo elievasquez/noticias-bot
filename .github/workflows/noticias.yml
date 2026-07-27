@@ -22,6 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          playwright install --with-deps chromium # <-- AGREGAR ESTA LÍNEA
 
       - name: Ejecutar script de envío
         env:
