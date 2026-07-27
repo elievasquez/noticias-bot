@@ -51,6 +51,15 @@ RADIO_KM_COMBUSTIBLE = 15  # radio de búsqueda de estaciones alrededor de cada 
 # Cantidad de noticias por sección según la edición
 NOTICIAS_LOCALES = {"manana": 3, "noche": 1}
 NOTICIAS_GLOBALES = {"manana": 2, "noche": 1}   # por cada tema: nacional/mundo/tec
+NOTICIAS_FEEDS_ADICIONALES = {"manana": 3, "noche": 1}  # por cada feed adicional
+
+# Feeds RSS de medios locales/regionales, además de la búsqueda en Google News.
+# Para sumar uno nuevo, agrega otro diccionario con "nombre" y "url".
+FEEDS_ADICIONALES = [
+    {"nombre": "Longaví.cl", "url": "https://longavi.cl/feed/"},
+    {"nombre": "PuraNoticia", "url": "https://puranoticia.pnt.cl/cms/site/list/port/feed.rss"},
+    # {"nombre": "Nombre del medio", "url": "https://ejemplo.cl/feed/"},
+]
 
 WMO_CODES = {
     0: "Despejado", 1: "Mayormente despejado", 2: "Parcialmente nublado",
@@ -90,7 +99,7 @@ def resumen_clima_ciudad(nombre_ciudad, datos):
     linea = (
         f"<b>{html.escape(nombre_ciudad)}</b> {actual['temperature_2m']}°C, "
         f"{desc_actual.lower()} · min {diario['temperature_2m_min'][0]}° / "
-        f"máx {diario['temperature_2m_max'][0]}°"
+        f"máx {diario['temperature_2m_max'][0]}° · 💨 {actual['wind_speed_10m']} km/h"
     )
 
     alerta = None
@@ -271,17 +280,37 @@ def noticias_por_tema(tema, n):
     return feed.entries[:n]
 
 
-def formatear_items(entradas):
-    """Lista de líneas '• título — fuente' en HTML, con link en el título."""
+def formatear_items(entradas, fuente=None):
+    """Lista de líneas '• título — fuente' en HTML, con link en el título.
+
+    Si se pasa `fuente`, se usa ese nombre para todas las entradas (útil para
+    feeds RSS directos, que no traen el campo `source` como sí lo hace Google
+    News). Si no, se intenta sacar el nombre desde `e.source.title`.
+    """
     lineas = []
     for e in entradas:
         titulo = html.escape(e.title)
         link = e.link
-        fuente = ""
-        if hasattr(e, "source") and getattr(e.source, "title", None):
-            fuente = f" <i>— {html.escape(e.source.title)}</i>"
-        lineas.append(f'• <a href="{link}">{titulo}</a>{fuente}')
+        fuente_texto = ""
+        if fuente:
+            fuente_texto = f" <i>— {html.escape(fuente)}</i>"
+        elif hasattr(e, "source") and getattr(e.source, "title", None):
+            fuente_texto = f" <i>— {html.escape(e.source.title)}</i>"
+        lineas.append(f'• <a href="{link}">{titulo}</a>{fuente_texto}')
     return lineas if lineas else ["Sin novedades por ahora."]
+
+
+def noticias_de_feed(url, n):
+    """Lee un feed RSS directo (no Google News). Nunca lanza excepción: si el
+    feed falla, se registra en el log y se sigue con el resto del boletín."""
+    try:
+        feed = feedparser.parse(url)
+        if getattr(feed, "bozo", False) and not feed.entries:
+            print(f"[FEED] {url} no se pudo leer bien: {feed.get('bozo_exception')}", file=sys.stderr)
+        return feed.entries[:n]
+    except Exception as e:
+        print(f"[FEED] Error leyendo {url}: {e}", file=sys.stderr)
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -294,17 +323,43 @@ def enviar_telegram(texto):
         sys.exit(1)
 
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    LIMITE = 3900
 
     # Telegram limita los mensajes a 4096 caracteres: se parte en bloques.
     bloques = []
     actual = ""
     for linea in texto.split("\n"):
-        if len(actual) + len(linea) + 1 > 3900:
-            bloques.append(actual)
-            actual = ""
+        if len(actual) + len(linea) + 1 > LIMITE:
+            if actual:
+                bloques.append(actual)
+                actual = ""
+            # Caso límite: una sola línea ya supera el límite (link muy largo,
+            # título gigante, etc.) — se corta a la fuerza en trozos.
+            while len(linea) > LIMITE:
+                bloques.append(linea[:LIMITE])
+                linea = linea[LIMITE:]
         actual += linea + "\n"
     if actual:
         bloques.append(actual)
+
+    # Si un corte deja un <blockquote> abierto (p. ej. muchas alertas de
+    # helada), se cierra al final de ese bloque y se reabre al inicio del
+    # siguiente, para que cada bloque sea HTML válido por separado.
+    bloques_balanceados = []
+    blockquote_abierto = False
+    for bloque in bloques:
+        contenido = bloque
+        if blockquote_abierto:
+            contenido = "<blockquote>" + contenido
+        aperturas = contenido.count("<blockquote>")
+        cierres = contenido.count("</blockquote>")
+        if aperturas > cierres:
+            contenido += "</blockquote>"
+            blockquote_abierto = True
+        else:
+            blockquote_abierto = False
+        bloques_balanceados.append(contenido)
+    bloques = bloques_balanceados
 
     for bloque in bloques:
         resp = requests.post(url, data={
@@ -369,12 +424,22 @@ def armar_mensaje_noticias(ahora, es_manana):
     n_local = NOTICIAS_LOCALES["manana" if es_manana else "noche"]
     n_global = NOTICIAS_GLOBALES["manana" if es_manana else "noche"]
 
+    n_feed = NOTICIAS_FEEDS_ADICIONALES["manana" if es_manana else "noche"]
+
     partes = ["📍 <b>Noticias locales</b>"]
     for ciudad in CIUDADES:
         entradas = buscar_noticias_por_texto(f'"{ciudad}" Chile', n_local)
         partes.append(f"<b>{html.escape(ciudad)}</b>")
         partes.extend(formatear_items(entradas))
         partes.append("")
+
+    if FEEDS_ADICIONALES:
+        partes.append("📰 <b>Más fuentes locales</b>")
+        for feed_info in FEEDS_ADICIONALES:
+            entradas = noticias_de_feed(feed_info["url"], n_feed)
+            partes.append(f"<b>{html.escape(feed_info['nombre'])}</b>")
+            partes.extend(formatear_items(entradas))
+            partes.append("")
 
     partes.append(SEPARADOR)
     partes.append("")
@@ -401,13 +466,26 @@ def main():
 
     es_manana = ahora.hour < 15
 
-    mensaje_resumen = armar_mensaje_resumen(ahora, es_manana)
-    enviar_telegram(mensaje_resumen)
+    try:
+        mensaje_resumen = armar_mensaje_resumen(ahora, es_manana)
+        enviar_telegram(mensaje_resumen)
 
-    mensaje_noticias = armar_mensaje_noticias(ahora, es_manana)
-    enviar_telegram(mensaje_noticias)
+        mensaje_noticias = armar_mensaje_noticias(ahora, es_manana)
+        enviar_telegram(mensaje_noticias)
 
-    print("Boletín enviado correctamente (2 mensajes).")
+        print("Boletín enviado correctamente (2 mensajes).")
+    except Exception as e:
+        print(f"Error generando/enviando el boletín: {e}", file=sys.stderr)
+        try:
+            enviar_telegram(
+                "⚠️ <b>Error en el boletín</b>\n"
+                "No se pudo generar o enviar el boletín completo hoy.\n"
+                f"<code>{html.escape(str(e))}</code>"
+            )
+        except Exception as e2:
+            print(f"Además falló el aviso de error por Telegram: {e2}", file=sys.stderr)
+        # Se relanza para que el workflow quede marcado como fallido en Actions.
+        raise
 
 
 if __name__ == "__main__":
