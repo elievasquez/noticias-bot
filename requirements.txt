@@ -3,3 +3,7 @@ feedparser>=6.0.10
 Pillow>=10.0.0
 python-dotenv>=1.0.0
 python-telegram-bot>=20.0
+requests
+feedparser
+Pillow
+playwright
