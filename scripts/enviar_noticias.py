@@ -192,10 +192,25 @@ CSS_MANANA = """
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
   .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #2F80ED; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #E5E9EC; }
   .gauge-punto.alerta .bola { background: #E0523F; }
-  .gauge-punto.etiqueta { position: absolute; left: 50%; font-size: 10px; white-space: nowrap; line-height: 1.1; padding: 3px 6px; border-radius: 4px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+  .gauge-punto .etiqueta { 
+    position: absolute; 
+    left: 50%; 
+    font-size: 10px; 
+    white-space: nowrap; 
+    line-height: 1.1; 
+    padding: 3px 6px; 
+    border-radius: 4px; 
+    display: flex; 
+    gap: 4px; 
+    align-items: center; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    background: #FFFFFF; 
+    color: #33404A; 
+    border: 1px solid #E5E9EC; 
+  }
   .gauge-punto.pos-abajo .etiqueta { top: 24px; }
   .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
-  .gauge-punto.etiqueta { background: #FFFFFF; color: #33404A; border: 1px solid #E5E9EC; }
+  .gauge-punto .etiqueta b { font-weight: 700; }
   .gauge-punto.alerta .etiqueta b { color: #E0523F; }
   .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A97A1; }
 
@@ -260,10 +275,25 @@ CSS_NOCHE = """
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
   .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #00E0FF; border: 3px solid #212E3D; box-shadow: 0 0 0 1px #2A3B4C; }
   .gauge-punto.alerta .bola { background: #FF6B6B; }
-  .gauge-punto .etiqueta { background: #18222D; color: #E1E7EC; border: 1px solid #2A3B4C; }
+  .gauge-punto .etiqueta { 
+    position: absolute; 
+    left: 50%; 
+    font-size: 10px; 
+    white-space: nowrap; 
+    line-height: 1.1; 
+    padding: 3px 6px; 
+    border-radius: 4px; 
+    display: flex; 
+    gap: 4px; 
+    align-items: center; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    background: #18222D; 
+    color: #E1E7EC; 
+    border: 1px solid #2A3B4C; 
+  }
   .gauge-punto.pos-abajo .etiqueta { top: 24px; }
   .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
-  .gauge-punto .etiqueta b { display: block; font-size: 11px; font-weight: 700; }
+  .gauge-punto .etiqueta b { font-weight: 700; }
   .gauge-punto.alerta .etiqueta b { color: #FF6B6B; }
   .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A9DAE; }
 
@@ -327,7 +357,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
           </div>
         </div>"""
 
-# -----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # GAUGE HELADAS CON PREVENCIÓN DE SOLAPAMIENTO
     # -----------------------------------------------------------------------
     min_temp, max_temp = -2.0, 10.0
@@ -352,7 +382,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
         if ultimas_pos:
             pos_anterior = ultimas_pos[-1]
             if abs(pct - pos_anterior) < 12:
-                # Si está muy cerca del anterior, desplazamos levemente a la derecha
+                # Si está muy cerca del anterior, desplazamos levemente
                 shift_x = "transform: translateX(-15%);" if idx % 2 == 0 else "transform: translateX(-85%);"
         
         ultimas_pos.append(pct)
