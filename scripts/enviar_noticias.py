@@ -1,5 +1,5 @@
 """
-Boletín automático en UNA SOLA IMAGEN PNG (Diseño Corregido)
+Boletín automático en UNA SOLA IMAGEN PNG (Diseño Dinámico: Mañana / Noche)
 Noticias, clima, heladas y precios de combustible para Maule.
 """
 
@@ -148,7 +148,147 @@ def noticias_tema(tema, n=2):
     return res
 
 # ---------------------------------------------------------------------------
-# GENERADOR HTML Y CONVERSIÓN CON PLAYWRIGHT
+# ESTILOS CSS (MAÑANA VS NOCHE)
+# ---------------------------------------------------------------------------
+
+CSS_MANANA = """
+  body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; color: #33404A; background: #FFFFFF; width: 794px; }
+  .pagina { padding: 0 0 28px 0; background: #FFFFFF; }
+  
+  .masthead { padding: 40px 48px 22px 48px; }
+  .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #2F80ED; font-weight: 700; background: #E5E9EC; padding: 4px 10px; border-radius: 4px; }
+  .titulo { font-weight: 700; font-size: 42px; color: #5A6E7F; letter-spacing: -0.5px; margin-top: 12px; }
+  .titulo .acento { color: #2F80ED; }
+  .fecha-box { text-align: right; color: #8A97A1; font-size: 13px; line-height: 1.6; }
+  .fecha-box .dia { font-size: 15px; color: #5A6E7F; font-weight: 600; }
+  .masthead-rule { margin-top: 22px; height: 2px; background: #E5E9EC; position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: #2F80ED; }
+  .comunas { margin-top: 14px; color: #8A97A1; font-size: 12.5px; letter-spacing: 0.3px; }
+  .comunas b { color: #5A6E7F; }
+
+  .seccion { padding: 24px 48px 0 48px; }
+  .seccion-titulo { font-weight: 700; font-size: 19px; color: #5A6E7F; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .seccion-titulo .barra { width: 22px; height: 4px; background: #2F80ED; border-radius: 2px; display: inline-block; }
+
+  .clima-fila { display: flex; gap: 14px; }
+  .clima-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 16px 18px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 16.5px; color: #5A6E7F; }
+  .clima-card .desc { font-size: 12px; color: #8A97A1; margin-top: 2px; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
+  .clima-card .temp { font-size: 38px; font-weight: 700; color: #2F80ED; line-height: 1; }
+  .clima-card .minmax { font-size: 12px; color: #8A97A1; margin-top: 8px; }
+  .clima-card .viento { font-size: 12px; color: #5A6E7F; font-weight: 600; margin-top: 4px; }
+
+  .gauge-box { margin-top: 14px; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 35px 26px 35px 26px; }
+  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
+  .gauge-titulo { font-weight: 700; font-size: 14.5px; color: #E0523F; }
+  .gauge-nota { font-size: 11px; color: #8A97A1; }
+  .gauge-track { position: relative; height: 6px; background: #E5E9EC; border-radius: 3px; }
+  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #F6C9C1; border-radius: 3px 0 0 3px; }
+  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #5A6E7F; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #5A6E7F; background: #FFFFFF; padding: 1px 5px; border-radius: 4px; border: 1px solid #E5E9EC; }
+  
+  .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #2F80ED; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #E5E9EC; }
+  .gauge-punto.alerta .bola { background: #E0523F; }
+  .gauge-punto .etiqueta { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10.5px; white-space: nowrap; text-align: center; color: #33404A; line-height: 1.2; background: #FFFFFF; padding: 2px 4px; border-radius: 4px; border: 1px solid #F0F3F5; }
+  .gauge-punto.pos-abajo .etiqueta { top: 24px; }
+  .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
+  .gauge-punto .etiqueta b { display: block; font-size: 11px; font-weight: 700; }
+  .gauge-punto.alerta .etiqueta b { color: #E0523F; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A97A1; }
+
+  .noticias-cols { display: flex; gap: 30px; margin-top: 2px; }
+  .col { flex: 1; }
+  .subgrupo { margin-bottom: 14px; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #2F80ED; text-transform: uppercase; letter-spacing: 1px; background: #E5E9EC; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .noticia { font-size: 12.5px; line-height: 1.45; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid #E5E9EC; }
+  .noticia .titulo-n { color: #33404A; font-weight: 500; }
+  .noticia .fuente-n { color: #8A97A1; font-size: 10.5px; margin-top: 2px; }
+
+  .combustible-box { margin-top: 10px; background: #5A6E7F; border-radius: 10px; padding: 20px 26px; }
+  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 10.5px; color: #C9D3DA; font-weight: 400; }
+  .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
+  .precio-card { flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 10px; text-align: center; }
+  .precio-card .tipo { font-size: 11px; color: #8FC1FF; font-weight: 700; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
+  .precio-card .ciudad-p { font-size: 9.5px; color: #C9D3DA; margin-top: 4px; }
+
+  .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #E5E9EC; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A97A1; }
+"""
+
+CSS_NOCHE = """
+  body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; color: #E1E7EC; background: #18222D; width: 794px; }
+  .pagina { padding: 0 0 28px 0; background: #18222D; }
+  
+  .masthead { padding: 40px 48px 22px 48px; }
+  .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #00E0FF; font-weight: 700; background: #233242; padding: 4px 10px; border-radius: 4px; }
+  .titulo { font-weight: 700; font-size: 42px; color: #FFFFFF; letter-spacing: -0.5px; margin-top: 12px; }
+  .titulo .acento { color: #00E0FF; }
+  .fecha-box { text-align: right; color: #8A9DAE; font-size: 13px; line-height: 1.6; }
+  .fecha-box .dia { font-size: 15px; color: #E1E7EC; font-weight: 600; }
+  .masthead-rule { margin-top: 22px; height: 2px; background: #2A3B4C; position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: #00E0FF; }
+  .comunas { margin-top: 14px; color: #8A9DAE; font-size: 12.5px; letter-spacing: 0.3px; }
+  .comunas b { color: #FFFFFF; }
+
+  .seccion { padding: 24px 48px 0 48px; }
+  .seccion-titulo { font-weight: 700; font-size: 19px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .seccion-titulo .barra { width: 22px; height: 4px; background: #00E0FF; border-radius: 2px; display: inline-block; }
+
+  .clima-fila { display: flex; gap: 14px; }
+  .clima-card { flex: 1; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 16px 18px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 16.5px; color: #FFFFFF; }
+  .clima-card .desc { font-size: 12px; color: #8A9DAE; margin-top: 2px; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
+  .clima-card .temp { font-size: 38px; font-weight: 700; color: #00E0FF; line-height: 1; }
+  .clima-card .minmax { font-size: 12px; color: #8A9DAE; margin-top: 8px; }
+  .clima-card .viento { font-size: 12px; color: #E1E7EC; font-weight: 600; margin-top: 4px; }
+
+  .gauge-box { margin-top: 14px; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 35px 26px 35px 26px; }
+  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
+  .gauge-titulo { font-weight: 700; font-size: 14.5px; color: #FF6B6B; }
+  .gauge-nota { font-size: 11px; color: #8A9DAE; }
+  .gauge-track { position: relative; height: 6px; background: #2A3B4C; border-radius: 3px; }
+  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #5A2A2A; border-radius: 3px 0 0 3px; }
+  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #8A9DAE; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #FFFFFF; background: #212E3D; padding: 1px 5px; border-radius: 4px; border: 1px solid #2A3B4C; }
+  
+  .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #00E0FF; border: 3px solid #212E3D; box-shadow: 0 0 0 1px #2A3B4C; }
+  .gauge-punto.alerta .bola { background: #FF6B6B; }
+  .gauge-punto .etiqueta { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10.5px; white-space: nowrap; text-align: center; color: #E1E7EC; line-height: 1.2; background: #18222D; padding: 2px 4px; border-radius: 4px; border: 1px solid #2A3B4C; }
+  .gauge-punto.pos-abajo .etiqueta { top: 24px; }
+  .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
+  .gauge-punto .etiqueta b { display: block; font-size: 11px; font-weight: 700; }
+  .gauge-punto.alerta .etiqueta b { color: #FF6B6B; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A9DAE; }
+
+  .noticias-cols { display: flex; gap: 30px; margin-top: 2px; }
+  .col { flex: 1; }
+  .subgrupo { margin-bottom: 14px; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #00E0FF; text-transform: uppercase; letter-spacing: 1px; background: #233242; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
+  .noticia { font-size: 12.5px; line-height: 1.45; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid #2A3B4C; }
+  .noticia .titulo-n { color: #E1E7EC; font-weight: 500; }
+  .noticia .fuente-n { color: #8A9DAE; font-size: 10.5px; margin-top: 2px; }
+
+  .combustible-box { margin-top: 10px; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 20px 26px; }
+  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 10.5px; color: #8A9DAE; font-weight: 400; }
+  .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
+  .precio-card { flex: 1; background: #18222D; border: 1px solid #2A3B4C; border-radius: 8px; padding: 12px 10px; text-align: center; }
+  .precio-card .tipo { font-size: 11px; color: #00E0FF; font-weight: 700; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
+  .precio-card .ciudad-p { font-size: 9.5px; color: #8A9DAE; margin-top: 4px; }
+
+  .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #2A3B4C; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A9DAE; }
+"""
+
+# ---------------------------------------------------------------------------
+# RENDERIZADO Y PLAYWRIGHT
 # ---------------------------------------------------------------------------
 
 async def html_a_imagen(html_content: str) -> bytes:
@@ -156,7 +296,6 @@ async def html_a_imagen(html_content: str) -> bytes:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page(viewport={"width": 794, "height": 1000}, device_scale_factor=2)
         await page.set_content(html_content, wait_until="networkidle")
-        # Esperar a que las fuentes web estén completamente cargadas
         await page.evaluate("document.fonts.ready")
         elemento = await page.query_selector(".pagina")
         img_bytes = await elemento.screenshot(type="png")
@@ -165,14 +304,14 @@ async def html_a_imagen(html_content: str) -> bytes:
 
 def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, datos_combustible):
     edicion_txt = "Edición de la mañana" if es_manana else "Edición de la noche"
+    css_tema = CSS_MANANA if es_manana else CSS_NOCHE
     
-    # Formato de fecha totalmente en español
     dia_nombre = DIAS_ESP[ahora.weekday()]
     mes_nombre = MESES_ESP[ahora.month - 1]
     fecha_txt = f"{dia_nombre} {ahora.day} de {mes_nombre}, {ahora.year}"
     hora_txt = f"Actualizado {ahora.strftime('%H:%M')} hrs"
 
-    # Clima Cards HTML
+    # Clima Cards
     clima_cards_html = ""
     for ciudad, info in datos_clima.items():
         clima_cards_html += f"""
@@ -188,23 +327,17 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
           </div>
         </div>"""
 
-    # Gauge Heladas Corregido (Escala de -2°C a 10°C)
+    # Gauge Heladas
     min_temp, max_temp = -2.0, 10.0
     rango = max_temp - min_temp
-    
-    # Calcular posición del 0°C exacto: (-2 a 10 es 12 grados. 0° está a 2/12 = 16.66%)
     pos_cero = ((0.0 - min_temp) / rango) * 100
     
-    # Ordenar ciudades por temperatura para alternar etiquetas arriba/abajo y evitar montado
     ciudades_ordenadas = sorted(datos_clima.items(), key=lambda x: x[1]['tmin_madrugada'])
-    
     gauge_puntos_html = ""
     for idx, (ciudad, info) in enumerate(ciudades_ordenadas):
         t_min = info['tmin_madrugada']
         pct = max(2, min(98, ((t_min - min_temp) / rango) * 100))
         alerta_cls = "alerta" if t_min <= UMBRAL_HELADA_C else ""
-        
-        # Alternar la dirección de la etiqueta (arriba o abajo) para que no se pisen
         offset_cls = "pos-arriba" if idx % 2 == 0 else "pos-abajo"
         
         gauge_puntos_html += f"""
@@ -213,7 +346,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
           <div class="etiqueta"><b>{ciudad}</b>{t_min}°C</div>
         </div>"""
 
-    # Noticias HTML
+    # Noticias
     def gen_subgrupo(titulo, lista_noticias):
         items = ""
         for n in lista_noticias:
@@ -234,81 +367,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: 'Poppins', system-ui, -apple-system, sans-serif; color: #33404A; background: #FFFFFF; width: 794px; }}
-  .pagina {{ padding: 0 0 28px 0; background: #FFFFFF; }}
-  
-  /* Masthead */
-  .masthead {{ padding: 40px 48px 22px 48px; }}
-  .masthead-top {{ display: flex; justify-content: space-between; align-items: baseline; }}
-  .eyebrow {{ font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #2F80ED; font-weight: 700; background: #E5E9EC; padding: 4px 10px; border-radius: 4px; }}
-  .titulo {{ font-weight: 700; font-size: 42px; color: #5A6E7F; letter-spacing: -0.5px; margin-top: 12px; }}
-  .titulo .acento {{ color: #2F80ED; }}
-  .fecha-box {{ text-align: right; color: #8A97A1; font-size: 13px; line-height: 1.6; }}
-  .fecha-box .dia {{ font-size: 15px; color: #5A6E7F; font-weight: 600; }}
-  .masthead-rule {{ margin-top: 22px; height: 2px; background: #E5E9EC; position: relative; }}
-  .masthead-rule::after {{ content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: #2F80ED; }}
-  .comunas {{ margin-top: 14px; color: #8A97A1; font-size: 12.5px; letter-spacing: 0.3px; }}
-  .comunas b {{ color: #5A6E7F; }}
-
-  /* Secciones */
-  .seccion {{ padding: 24px 48px 0 48px; }}
-  .seccion-titulo {{ font-weight: 700; font-size: 19px; color: #5A6E7F; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }}
-  .seccion-titulo .barra {{ width: 22px; height: 4px; background: #2F80ED; border-radius: 2px; display: inline-block; }}
-
-  /* Clima Cards */
-  .clima-fila {{ display: flex; gap: 14px; }}
-  .clima-card {{ flex: 1; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 16px 18px; }}
-  .clima-card .ciudad {{ font-weight: 700; font-size: 16.5px; color: #5A6E7F; }}
-  .clima-card .desc {{ font-size: 12px; color: #8A97A1; margin-top: 2px; }}
-  .clima-fila-datos {{ display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }}
-  .clima-card .temp {{ font-size: 38px; font-weight: 700; color: #2F80ED; line-height: 1; }}
-  .clima-card .minmax {{ font-size: 12px; color: #8A97A1; margin-top: 8px; }}
-  .clima-card .viento {{ font-size: 12px; color: #5A6E7F; font-weight: 600; margin-top: 4px; }}
-
-  /* Gauge Heladas Mejorado */
-  .gauge-box {{ margin-top: 14px; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 35px 26px 35px 26px; }}
-  .gauge-header {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }}
-  .gauge-titulo {{ font-weight: 700; font-size: 14.5px; color: #E0523F; }}
-  .gauge-nota {{ font-size: 11px; color: #8A97A1; }}
-  .gauge-track {{ position: relative; height: 6px; background: #E5E9EC; border-radius: 3px; }}
-  .gauge-track-riesgo {{ position: absolute; left: 0; top: 0; height: 6px; width: {pos_cero:.1f}%; background: #F6C9C1; border-radius: 3px 0 0 3px; }}
-  .gauge-cero {{ position: absolute; top: -10px; left: {pos_cero:.1f}%; width: 2px; height: 26px; background: #5A6E7F; }}
-  .gauge-cero-label {{ position: absolute; top: -28px; left: {pos_cero:.1f}%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #5A6E7F; background: #FFFFFF; padding: 1px 5px; border-radius: 4px; border: 1px solid #E5E9EC; }}
-  
-  .gauge-punto {{ position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }}
-  .gauge-punto .bola {{ width: 20px; height: 20px; border-radius: 50%; background: #2F80ED; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #E5E9EC; }}
-  .gauge-punto.alerta .bola {{ background: #E0523F; }}
-
-  /* Etiquetas alternadas (arriba/abajo) para que no se tapen */
-  .gauge-punto .etiqueta {{ position: absolute; left: 50%; transform: translateX(-50%); font-size: 10.5px; white-space: nowrap; text-align: center; color: #33404A; line-height: 1.2; background: #FFFFFF; padding: 2px 4px; border-radius: 4px; border: 1px solid #F0F3F5; }}
-  .gauge-punto.pos-abajo .etiqueta {{ top: 24px; }}
-  .gauge-punto.pos-arriba .etiqueta {{ bottom: 24px; }}
-  .gauge-punto .etiqueta b {{ display: block; font-size: 11px; font-weight: 700; }}
-  .gauge-punto.alerta .etiqueta b {{ color: #E0523F; }}
-
-  .gauge-escala {{ display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A97A1; }}
-
-  /* Noticias */
-  .noticias-cols {{ display: flex; gap: 30px; margin-top: 2px; }}
-  .col {{ flex: 1; }}
-  .subgrupo {{ margin-bottom: 14px; }}
-  .subgrupo-titulo {{ display: inline-block; font-size: 11px; font-weight: 700; color: #2F80ED; text-transform: uppercase; letter-spacing: 1px; background: #E5E9EC; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }}
-  .noticia {{ font-size: 12.5px; line-height: 1.45; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid #E5E9EC; }}
-  .noticia .titulo-n {{ color: #33404A; font-weight: 500; }}
-  .noticia .fuente-n {{ color: #8A97A1; font-size: 10.5px; margin-top: 2px; }}
-
-  /* Combustible */
-  .combustible-box {{ margin-top: 10px; background: #5A6E7F; border-radius: 10px; padding: 20px 26px; }}
-  .combustible-titulo {{ color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }}
-  .combustible-titulo span.nota {{ font-size: 10.5px; color: #C9D3DA; font-weight: 400; }}
-  .precios-fila {{ display: flex; gap: 14px; margin-top: 14px; }}
-  .precio-card {{ flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 10px; text-align: center; }}
-  .precio-card .tipo {{ font-size: 11px; color: #8FC1FF; font-weight: 700; letter-spacing: 1px; }}
-  .precio-card .monto {{ font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }}
-  .precio-card .ciudad-p {{ font-size: 9.5px; color: #C9D3DA; margin-top: 4px; }}
-
-  /* Footer */
-  .footer {{ margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #E5E9EC; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A97A1; }}
+  {css_tema}
 </style>
 </head>
 <body>
@@ -340,9 +399,9 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
         <div class="gauge-nota">línea = 0°C</div>
       </div>
       <div class="gauge-track">
-        <div class="gauge-track-riesgo"></div>
-        <div class="gauge-cero"></div>
-        <div class="gauge-cero-label">0°</div>
+        <div class="gauge-track-riesgo" style="width:{pos_cero:.1f}%;"></div>
+        <div class="gauge-cero" style="left:{pos_cero:.1f}%;"></div>
+        <div class="gauge-cero-label" style="left:{pos_cero:.1f}%;">0°</div>
         {gauge_puntos_html}
       </div>
       <div class="gauge-escala"><span>-2°C</span><span>10°C</span></div>
@@ -378,7 +437,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
 </html>"""
 
 # ---------------------------------------------------------------------------
-# ENVÍO A TELEGRAM Y MAIN
+# ENVÍO Y MAIN
 # ---------------------------------------------------------------------------
 
 def enviar_foto_telegram(imagen_bytes):
@@ -402,6 +461,7 @@ async def main_async():
         print(f"Hora actual en Chile: {ahora.strftime('%H:%M')} — no toca enviar. Saliendo.")
         return
 
+    # Se considera mañana antes de las 15:00 hrs
     es_manana = ahora.hour < 15
 
     # 1. Clima
@@ -432,13 +492,13 @@ async def main_async():
     # 3. Combustibles
     datos_combustible = mejores_precios_combustible()
 
-    # 4. Renderizado
+    # 4. Renderizado Dinámico
     html_final = renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, datos_combustible)
     imagen_bytes = await html_a_imagen(html_final)
 
     # 5. Enviar
     enviar_foto_telegram(imagen_bytes)
-    print("Boletín enviado con éxito como una sola imagen PNG perfectamente renderizada.")
+    print(f"Boletín enviado con éxito ({'Edición Mañana - Modo Claro' if es_manana else 'Edición Noche - Modo Oscuro'}).")
 
 def main():
     asyncio.run(main_async())
