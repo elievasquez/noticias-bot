@@ -398,7 +398,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
     
     # Textos dinámicos adaptados al horario
     titulo_clima = "Clima para hoy" if es_manana else "Pronóstico clima para mañana"
-    subtitulo_heladas = "mínima de hoy en la madrugada" if es_manana else "mínima para mañana en la madrugada"
+    subtitulo_heladas = "mínima para hoy en la madrugada" if es_manana else "mínima para la próxima madrugada"
 
     dia_nombre = DIAS_ESP[fecha_reporte.weekday()]
     mes_nombre = MESES_ESP[fecha_reporte.month - 1]
@@ -600,8 +600,11 @@ async def main_async():
         curr = raw["current"]
         daily = raw["daily"]
         
+        # En la mañana destaca la temperatura actual; en la noche destaca la MÁXIMA prevista para mañana
+        temp_destacada = round(curr["temperature_2m"]) if es_manana else round(daily["temperature_2m_max"][idx_dia])
+        
         datos_clima[ciudad] = {
-            "temp": round(curr["temperature_2m"]),
+            "temp": temp_destacada,
             "min": round(daily["temperature_2m_min"][idx_dia]),
             "max": round(daily["temperature_2m_max"][idx_dia]),
             "viento": round(curr["wind_speed_10m"]),
