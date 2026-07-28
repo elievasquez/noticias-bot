@@ -323,202 +323,173 @@ def noticias_tema(tema, n=2):
 
 CSS_MANANA = """
   @import url('https://rsms.me/inter/inter.css');
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #2C3E50; background: #FFFFFF; width: 794px; -webkit-font-smoothing: antialiased; }
-  .pagina { padding: 0 0 32px 0; background: #FFFFFF; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #0F172A; background: #F8FAFC; width: 794px; -webkit-font-smoothing: antialiased; }
+  .pagina { padding: 0 0 32px 0; background: #F8FAFC; }
   
   .masthead { padding: 40px 48px 22px 48px; }
   .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #1D63ED; font-weight: 700; background: #EBF3FE; padding: 5px 12px; border-radius: 6px; }
-  .titulo { font-weight: 800; font-size: 44px; color: #1E293B; letter-spacing: -1px; margin-top: 10px; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #1D63ED; font-weight: 800; background: #E0EDFF; padding: 6px 14px; border-radius: 6px; }
+  .titulo { font-weight: 800; font-size: 46px; color: #0F172A; letter-spacing: -1px; margin-top: 10px; }
   .titulo .acento { color: #1D63ED; }
-  .fecha-box { text-align: right; color: #64748B; font-size: 13px; line-height: 1.5; }
-  .fecha-box .dia { font-size: 15px; color: #1E293B; font-weight: 600; }
-  .fecha-box .santoral { font-size: 12px; color: #1D63ED; font-weight: 500; margin-top: 2px; }
-  .masthead-rule { margin-top: 22px; height: 2px; background: #E2E8F0; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #1D63ED; }
-  .comunas { margin-top: 14px; color: #64748B; font-size: 13px; letter-spacing: 0.2px; }
-  .comunas b { color: #1E293B; font-weight: 600; }
+  .fecha-box { text-align: right; color: #475569; font-size: 13px; line-height: 1.5; }
+  .fecha-box .dia { font-size: 16px; color: #0F172A; font-weight: 700; }
+  .fecha-box .santoral { font-size: 12.5px; color: #1D63ED; font-weight: 600; margin-top: 2px; }
+  .masthead-rule { margin-top: 22px; height: 2px; background: #CBD5E1; position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 120px; background: #1D63ED; }
+  .comunas { margin-top: 14px; color: #475569; font-size: 13.5px; letter-spacing: 0.2px; }
+  .comunas b { color: #0F172A; font-weight: 700; }
 
   /* METRICAS */
-  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; }
-  .metric-item { font-size: 11px; color: #64748B; font-weight: 500; }
-  .metric-value { font-weight: 700; font-size: 14px; color: #1D63ED; margin-top: 2px; }
+  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #FFFFFF; border: 1px solid #CBD5E1; padding: 14px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .metric-item { font-size: 11.5px; color: #475569; font-weight: 600; }
+  .metric-value { font-weight: 800; font-size: 15px; color: #1D63ED; margin-top: 3px; }
 
   /* FERIADO */
-  .holiday-box { margin: 16px 48px 0 48px; background: #EBF3FE; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
-  .holiday-title { font-size: 11px; font-weight: 700; color: #1D63ED; text-transform: uppercase; letter-spacing: 0.5px; }
-  .holiday-desc { font-size: 13px; font-weight: 700; color: #1E293B; margin-top: 2px; }
-  .holiday-badge { background: #1D63ED; color: #FFFFFF; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .holiday-box { margin: 16px 48px 0 48px; background: #EBF3FE; border: 1px solid #BFDBFE; border-radius: 12px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .holiday-title { font-size: 11px; font-weight: 800; color: #1D63ED; text-transform: uppercase; letter-spacing: 0.5px; }
+  .holiday-desc { font-size: 14px; font-weight: 700; color: #0F172A; margin-top: 2px; }
+  .holiday-badge { background: #1D63ED; color: #FFFFFF; font-weight: 800; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
 
-  .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 20px; color: #0F172A; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .seccion { padding: 26px 48px 0 48px; }
+  .seccion-titulo { font-weight: 800; font-size: 21px; color: #0F172A; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
   .seccion-titulo .barra { width: 18px; height: 4px; background: #1D63ED; border-radius: 2px; display: inline-block; }
 
   .clima-fila { display: flex; gap: 14px; }
-  .clima-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #0F172A; }
-  .clima-card .desc { font-size: 12.5px; color: #64748B; margin-top: 2px; font-weight: 500; }
+  .clima-card { flex: 1; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .clima-card .ciudad { font-weight: 800; font-size: 18px; color: #0F172A; }
+  .clima-card .desc { font-size: 13px; color: #475569; margin-top: 3px; font-weight: 600; }
   .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
-  .clima-card .temp { font-size: 40px; font-weight: 800; color: #1D63ED; line-height: 0.9; letter-spacing: -1px; }
-  .clima-card .minmax { font-size: 12px; color: #64748B; font-weight: 500; }
-  .clima-card .viento { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
+  .clima-card .temp { font-size: 42px; font-weight: 800; color: #1D63ED; line-height: 0.9; letter-spacing: -1px; }
+  .clima-card .minmax { font-size: 12.5px; color: #475569; font-weight: 600; }
+  .clima-card .viento { font-size: 12px; color: #1E293B; font-weight: 700; margin-top: 4px; }
 
   /* GAUGE HELADAS */
-  .gauge-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 35px 26px; }
+  .gauge-box { margin-top: 16px; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 35px 26px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 15px; color: #DC2626; letter-spacing: -0.2px; }
-  .gauge-nota { font-size: 11.5px; color: #64748B; font-weight: 500; }
+  .gauge-titulo { font-weight: 800; font-size: 15px; color: #DC2626; letter-spacing: -0.2px; }
+  .gauge-nota { font-size: 11.5px; color: #475569; font-weight: 600; }
   .gauge-track { position: relative; height: 6px; background: #E2E8F0; border-radius: 3px; }
   .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #FCA5A5; border-radius: 3px 0 0 3px; }
-  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #475569; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #334155; background: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1; }
+  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #334155; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 800; color: #0F172A; background: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #94A3B8; }
   
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #1D63ED; border: 3px solid #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #1D63ED; border: 3px solid #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
   .gauge-punto.alerta .bola { background: #DC2626; }
-  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 10.5px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); background: #FFFFFF; color: #0F172A; border: 1px solid #E2E8F0; }
+  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 10.5px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; }
   .gauge-punto.pos-abajo .etiqueta { top: 25px; }
   .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
-  .gauge-punto .etiqueta b { font-weight: 700; }
+  .gauge-punto .etiqueta b { font-weight: 800; }
   .gauge-punto.alerta .etiqueta b { color: #DC2626; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #64748B; font-weight: 500; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #475569; font-weight: 600; }
 
   /* FASE LUNAR */
-  .lunar-bar { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-top: 16px; }
-  .lunar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 700; margin-bottom: 10px; text-align: center; }
+  .lunar-bar { background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 14px; margin-top: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .lunar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #475569; font-weight: 800; margin-bottom: 10px; text-align: center; }
   .lunar-days { display: flex; justify-content: space-around; align-items: center; }
-  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #64748B; font-weight: 500; }
-  .lunar-day.today { color: #1D63ED; font-weight: 700; transform: scale(1.1); }
+  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #475569; font-weight: 600; }
+  .lunar-day.today { color: #1D63ED; font-weight: 800; transform: scale(1.1); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-  /* NOTICIAS */
+  /* NOTICIAS - MÁXIMA CLARIDAD */
   .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
   .col { flex: 1; }
   .subgrupo { margin-bottom: 18px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #1D63ED; text-transform: uppercase; letter-spacing: 1px; background: #EBF3FE; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
-  .noticia { font-size: 13px; line-height: 1.5; margin-bottom: 10px; padding: 10px 12px; background: #F8FAFC; border-left: 3px solid #1D63ED; border-radius: 0 8px 8px 0; }
-  .noticia .titulo-n { color: #1E293B; font-weight: 600; letter-spacing: -0.1px; }
-  .noticia .fuente-n { color: #64748B; font-size: 11px; margin-top: 4px; font-weight: 500; }
+  .subgrupo-titulo { display: inline-block; font-size: 11.5px; font-weight: 800; color: #1D63ED; text-transform: uppercase; letter-spacing: 1px; background: #EBF3FE; padding: 4px 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #BFDBFE; }
+  .noticia { font-size: 14px; line-height: 1.55; margin-bottom: 12px; padding: 12px 14px; background: #FFFFFF; border-left: 4px solid #1D63ED; border-radius: 0 8px 8px 0; border-top: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+  .noticia .titulo-n { color: #0F172A; font-weight: 600; letter-spacing: -0.1px; }
+  .noticia .fuente-n { color: #475569; font-size: 12px; margin-top: 6px; font-weight: 600; }
 
   /* COMBUSTIBLES */
   .combustible-box { margin-top: 10px; background: #0F172A; border-radius: 12px; padding: 22px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
+  .combustible-titulo { color: #FFFFFF; font-size: 17px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11.5px; color: #CBD5E1; font-weight: 400; }
   .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
   .precio-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
-  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+  .precio-card .tipo { font-size: 11.5px; color: #38BDF8; font-weight: 800; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 22px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  .precio-card .ciudad-p { font-size: 11.5px; color: #F1F5F9; font-weight: 700; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 10px; color: #CBD5E1; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  /* EXTRA / FOOTER */
+  /* FOOTER */
   .footer-boxes { display: flex; gap: 14px; margin-top: 16px; }
-  .footer-box { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #1D63ED; padding: 12px 14px; border-radius: 0 10px 10px 0; }
-  .footer-box-title { font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 4px; text-transform: uppercase; }
-  .footer-box-text { font-size: 12px; color: #1E293B; font-style: italic; line-height: 1.4; }
+  .footer-box { flex: 1; background: #FFFFFF; border: 1px solid #CBD5E1; border-left: 4px solid #1D63ED; padding: 12px 14px; border-radius: 0 10px 10px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+  .footer-box-title { font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
+  .footer-box-text { font-size: 12.5px; color: #0F172A; font-style: italic; line-height: 1.4; }
 
-  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; font-size: 11px; color: #64748B; font-weight: 500; }
+  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #CBD5E1; display: flex; justify-content: space-between; font-size: 11px; color: #475569; font-weight: 600; }
 """
 
 CSS_NOCHE = """
   @import url('https://rsms.me/inter/inter.css');
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #F1F5F9; background: #0F172A; width: 794px; -webkit-font-smoothing: antialiased; }
-  .pagina { padding: 0 0 32px 0; background: #0F172A; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #F8FAFC; background: #0B1120; width: 794px; -webkit-font-smoothing: antialiased; }
+  .pagina { padding: 0 0 32px 0; background: #0B1120; }
   
   .masthead { padding: 40px 48px 22px 48px; }
   .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; font-weight: 700; background: #1E293B; padding: 5px 12px; border-radius: 6px; border: 1px solid #334155; }
-  .titulo { font-weight: 800; font-size: 44px; color: #FFFFFF; letter-spacing: -1px; margin-top: 10px; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; font-weight: 700; background: #1E293B; padding: 6px 14px; border-radius: 6px; border: 1px solid #334155; }
+  .titulo { font-weight: 800; font-size: 46px; color: #FFFFFF; letter-spacing: -1px; margin-top: 10px; }
   .titulo .acento { color: #38BDF8; }
-  .fecha-box { text-align: right; color: #94A3B8; font-size: 13px; line-height: 1.5; }
-  .fecha-box .dia { font-size: 15px; color: #F8FAFC; font-weight: 600; }
-  .fecha-box .santoral { font-size: 12px; color: #38BDF8; font-weight: 500; margin-top: 2px; }
+  .fecha-box { text-align: right; color: #CBD5E1; font-size: 13px; line-height: 1.5; }
+  .fecha-box .dia { font-size: 16px; color: #FFFFFF; font-weight: 700; }
+  .fecha-box .santoral { font-size: 12.5px; color: #38BDF8; font-weight: 600; margin-top: 2px; }
   .masthead-rule { margin-top: 22px; height: 2px; background: #1E293B; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #38BDF8; }
-  .comunas { margin-top: 14px; color: #94A3B8; font-size: 13px; letter-spacing: 0.2px; }
-  .comunas b { color: #FFFFFF; font-weight: 600; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 120px; background: #38BDF8; }
+  .comunas { margin-top: 14px; color: #CBD5E1; font-size: 13.5px; letter-spacing: 0.2px; }
+  .comunas b { color: #FFFFFF; font-weight: 700; }
 
   /* METRICAS */
-  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1E293B; border: 1px solid #334155; padding: 12px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; }
-  .metric-item { font-size: 11px; color: #94A3B8; font-weight: 500; }
-  .metric-value { font-weight: 700; font-size: 14px; color: #38BDF8; margin-top: 2px; }
+  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1E293B; border: 1px solid #334155; padding: 14px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; }
+  .metric-item { font-size: 11.5px; color: #CBD5E1; font-weight: 600; }
+  .metric-value { font-weight: 800; font-size: 15px; color: #38BDF8; margin-top: 3px; }
 
   /* FERIADO */
-  .holiday-box { margin: 16px 48px 0 48px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+  .holiday-box { margin: 16px 48px 0 48px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
   .holiday-title { font-size: 11px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px; }
-  .holiday-desc { font-size: 13px; font-weight: 700; color: #F8FAFC; margin-top: 2px; }
-  .holiday-badge { background: #38BDF8; color: #0F172A; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .holiday-desc { font-size: 14px; font-weight: 700; color: #FFFFFF; margin-top: 2px; }
+  .holiday-badge { background: #38BDF8; color: #0F172A; font-weight: 800; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
 
-  .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 20px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .seccion { padding: 26px 48px 0 48px; }
+  .seccion-titulo { font-weight: 800; font-size: 21px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
   .seccion-titulo .barra { width: 18px; height: 4px; background: #38BDF8; border-radius: 2px; display: inline-block; }
 
   .clima-fila { display: flex; gap: 14px; }
   .clima-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #FFFFFF; }
-  .clima-card .desc { font-size: 12.5px; color: #94A3B8; margin-top: 2px; font-weight: 500; }
+  .clima-card .ciudad { font-weight: 800; font-size: 18px; color: #FFFFFF; }
+  .clima-card .desc { font-size: 13px; color: #CBD5E1; margin-top: 3px; font-weight: 500; }
   .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
-  .clima-card .temp { font-size: 40px; font-weight: 800; color: #38BDF8; line-height: 0.9; letter-spacing: -1px; }
-  .clima-card .minmax { font-size: 12px; color: #94A3B8; font-weight: 500; }
-  .clima-card .viento { font-size: 12px; color: #CBD5E1; font-weight: 600; margin-top: 4px; }
+  .clima-card .temp { font-size: 42px; font-weight: 800; color: #38BDF8; line-height: 0.9; letter-spacing: -1px; }
+  .clima-card .minmax { font-size: 12.5px; color: #CBD5E1; font-weight: 600; }
+  .clima-card .viento { font-size: 12px; color: #E2E8F0; font-weight: 600; margin-top: 4px; }
 
-  /* GAUGE HELADAS */
-  .gauge-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 35px 26px; }
-  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 15px; color: #F87171; letter-spacing: -0.2px; }
-  .gauge-nota { font-size: 11.5px; color: #94A3B8; font-weight: 500; }
-  .gauge-track { position: relative; height: 6px; background: #334155; border-radius: 3px; }
-  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #991B1B; border-radius: 3px 0 0 3px; }
-  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #94A3B8; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #FFFFFF; background: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #334155; }
-  
-  .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #38BDF8; border: 3px solid #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  .gauge-punto.alerta .bola { background: #F87171; }
-  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 10.5px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #0F172A; color: #F1F5F9; border: 1px solid #334155; }
-  .gauge-punto.pos-abajo .etiqueta { top: 25px; }
-  .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
-  .gauge-punto .etiqueta b { font-weight: 700; }
-  .gauge-punto.alerta .etiqueta b { color: #F87171; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #94A3B8; font-weight: 500; }
-
-  /* FASE LUNAR */
-  .lunar-bar { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px; margin-top: 16px; }
-  .lunar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94A3B8; font-weight: 700; margin-bottom: 10px; text-align: center; }
-  .lunar-days { display: flex; justify-content: space-around; align-items: center; }
-  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500; }
-  .lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.1); }
-  .lunar-icon { font-size: 18px; margin: 2px 0; }
-
-  /* NOTICIAS */
+  /* NOTICIAS - MÁXIMA CLARIDAD */
   .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
   .col { flex: 1; }
   .subgrupo { margin-bottom: 18px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; background: #1E293B; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #334155; }
-  .noticia { font-size: 13px; line-height: 1.5; margin-bottom: 10px; padding: 10px 12px; background: #1E293B; border-left: 3px solid #38BDF8; border-radius: 0 8px 8px 0; border-top: 1px solid #2B394A; border-right: 1px solid #2B394A; border-bottom: 1px solid #2B394A; }
-  .noticia .titulo-n { color: #F8FAFC; font-weight: 500; letter-spacing: -0.1px; }
-  .noticia .fuente-n { color: #94A3B8; font-size: 11px; margin-top: 4px; font-weight: 500; }
+  .subgrupo-titulo { display: inline-block; font-size: 11.5px; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; background: #1E293B; padding: 4px 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #334155; }
+  .noticia { font-size: 14px; line-height: 1.55; margin-bottom: 12px; padding: 12px 14px; background: #1E293B; border-left: 4px solid #38BDF8; border-radius: 0 8px 8px 0; border-top: 1px solid #2D3D52; border-right: 1px solid #2D3D52; border-bottom: 1px solid #2D3D52; }
+  .noticia .titulo-n { color: #FFFFFF; font-weight: 600; letter-spacing: -0.1px; }
+  .noticia .fuente-n { color: #94A3B8; font-size: 12px; margin-top: 6px; font-weight: 500; }
 
   /* COMBUSTIBLES */
   .combustible-box { margin-top: 10px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 22px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
+  .combustible-titulo { color: #FFFFFF; font-size: 17px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11.5px; color: #CBD5E1; font-weight: 400; }
   .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
-  .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
-  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+  .precio-card { flex: 1; background: #0B1120; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
+  .precio-card .tipo { font-size: 11.5px; color: #38BDF8; font-weight: 800; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 22px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  .precio-card .ciudad-p { font-size: 11.5px; color: #F1F5F9; font-weight: 700; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 10px; color: #CBD5E1; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  /* EXTRA / FOOTER */
+  /* FOOTER */
   .footer-boxes { display: flex; gap: 14px; margin-top: 16px; }
   .footer-box { flex: 1; background: #1E293B; border: 1px solid #334155; border-left: 4px solid #38BDF8; padding: 12px 14px; border-radius: 0 10px 10px 0; }
-  .footer-box-title { font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 4px; text-transform: uppercase; }
-  .footer-box-text { font-size: 12px; color: #F8FAFC; font-style: italic; line-height: 1.4; }
+  .footer-box-title { font-size: 11px; font-weight: 800; color: #94A3B8; margin-bottom: 4px; text-transform: uppercase; }
+  .footer-box-text { font-size: 12.5px; color: #F8FAFC; font-style: italic; line-height: 1.4; }
 
   .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #1E293B; display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; font-weight: 500; }
 """
-
 # ==========================================
 # RENDERIZADO HTML Y PLAYWRIGHT
 # ==========================================
