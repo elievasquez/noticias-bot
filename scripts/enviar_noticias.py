@@ -558,15 +558,38 @@ CSS_MANANA = """
   .lunar-day.today { color: var(--accent); font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-  /* NOTICIAS */
-  .noticias-cols { display: flex; gap: 20px; margin-top: 4px; }
-  .col { flex: 1; }
-  .subgrupo { margin-bottom: 12px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--accent-bg); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; }
-  .noticia { font-size: 13.5px; line-height: 1.45; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-  .noticia .titulo-n { color: var(--text-primary); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
-  .noticia .bajada-n { color: var(--text-secondary); font-size: 12px; margin-top: 3px; font-weight: 400; line-height: 1.4; }
-  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 4px; font-weight: 500; }
+/* NOTICIAS OPTIMIZADAS (MAÑANA) */
+  .noticias-cols { display: flex; gap: 18px; margin-top: 4px; }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .subgrupo { margin-bottom: 0; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--accent-bg); padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
+  
+  .noticia { 
+    font-size: 13.5px; 
+    line-height: 1.45; 
+    padding: 10px 14px; 
+    background: var(--bg-card); 
+    border-left: 3px solid var(--accent); 
+    border-radius: 0 8px 8px 0; 
+    border-top: 1px solid var(--border-color); 
+    border-right: 1px solid var(--border-color); 
+    border-bottom: 1px solid var(--border-color); 
+  }
+  .noticia .titulo-n { color: var(--text-primary); font-weight: 700; font-size: 13.5px; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: 4px; }
+  
+  /* Permite 3 líneas completas de bajada sin cortes raros */
+  .noticia .bajada-n { 
+    color: var(--text-secondary); 
+    font-size: 12px; 
+    font-weight: 400; 
+    line-height: 1.45; 
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 6px; font-weight: 500; }
 
   /* TABLA FÚTBOL */
   .futbol-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
@@ -699,15 +722,38 @@ CSS_NOCHE = """
   .lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-  /* NOTICIAS */
-  .noticias-cols { display: flex; gap: 20px; margin-top: 4px; }
-  .col { flex: 1; }
-  .subgrupo { margin-bottom: 12px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--bg-card); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; border: 1px solid var(--border-color); }
-  .noticia { font-size: 13.5px; line-height: 1.45; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; border-top: 1px solid #2B394A; border-right: 1px solid #2B394A; border-bottom: 1px solid #2B394A; }
-  .noticia .titulo-n { color: var(--text-primary); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
-  .noticia .bajada-n { color: var(--text-secondary); font-size: 12px; margin-top: 3px; font-weight: 400; line-height: 1.4; }
-  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 4px; font-weight: 500; }
+/* NOTICIAS OPTIMIZADAS (NOCHE) */
+  .noticias-cols { display: flex; gap: 18px; margin-top: 4px; }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .subgrupo { margin-bottom: 0; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--bg-card); padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+  
+  .noticia { 
+    font-size: 13.5px; 
+    line-height: 1.45; 
+    padding: 10px 14px; 
+    background: var(--bg-card); 
+    border-left: 3px solid var(--accent); 
+    border-radius: 0 8px 8px 0; 
+    border-top: 1px solid #2B394A; 
+    border-right: 1px solid #2B394A; 
+    border-bottom: 1px solid #2B394A; 
+  }
+  .noticia .titulo-n { color: var(--text-primary); font-weight: 700; font-size: 13.5px; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: 4px; }
+  
+  /* Permite 3 líneas completas de bajada sin cortes raros */
+  .noticia .bajada-n { 
+    color: var(--text-secondary); 
+    font-size: 12px; 
+    font-weight: 400; 
+    line-height: 1.45; 
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 6px; font-weight: 500; }
 
   /* TABLA FÚTBOL */
   .futbol-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
