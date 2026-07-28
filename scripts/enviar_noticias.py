@@ -79,10 +79,6 @@ HTTP_SESSION = crear_sesion_robusta()
 # ---------------------------------------------------------------------------
 
 def limpiar_titulo_noticia(titulo_raw):
-    """
-    Elimina la fuente duplicada al final del título de Google News
-    Ej: "Noticia importante - La Tercera - BioBio" -> "Noticia importante"
-    """
     partes = titulo_raw.rsplit(" - ", 1)
     if len(partes) > 1:
         return partes[0].strip()
@@ -454,28 +450,36 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
           </div>
         </div>"""
 
-    # Gauge Heladas
+    # Gauge Heladas (Agrupando temperaturas idénticas)
     min_temp, max_temp = -2.0, 10.0
     rango = max_temp - min_temp
     pos_cero = ((0.0 - min_temp) / rango) * 100
-    
-    ciudades_ordenadas = sorted(datos_clima.items(), key=lambda x: x[1]['tmin_madrugada'])
-    
+
+    temp_grupos = {}
+    for ciudad, info in datos_clima.items():
+        t = info['tmin_madrugada']
+        if t not in temp_grupos:
+            temp_grupos[t] = []
+        nombre_format = "Y. Buenas" if ciudad == "Yerbas Buenas" else ciudad
+        temp_grupos[t].append(nombre_format)
+
+    grupos_ordenados = sorted(temp_grupos.items(), key=lambda x: x[0])
+
     gauge_puntos_html = ""
     ultimas_pos = []
 
-    for idx, (ciudad, info) in enumerate(ciudades_ordenadas):
-        t_min = info['tmin_madrugada']
+    for idx, (t_min, lista_ciudades) in enumerate(grupos_ordenados):
         pct = max(3, min(97, ((t_min - min_temp) / rango) * 100))
         alerta_cls = "alerta" if t_min <= UMBRAL_HELADA_C else ""
         
+        texto_ciudades = ", ".join(lista_ciudades)
         offset_v = "pos-arriba" if idx % 2 == 0 else "pos-abajo"
         
         shift_x = "transform: translateX(-50%);"
         if ultimas_pos:
             pos_anterior = ultimas_pos[-1]
-            if abs(pct - pos_anterior) < 12:
-                shift_x = "transform: translateX(-15%);" if idx % 2 == 0 else "transform: translateX(-85%);"
+            if abs(pct - pos_anterior) < 14:
+                shift_x = "transform: translateX(-10%);" if idx % 2 == 0 else "transform: translateX(-90%);"
         
         ultimas_pos.append(pct)
         
@@ -483,7 +487,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
         <div class="gauge-punto {alerta_cls} {offset_v}" style="left:{pct:.1f}%;">
           <div class="bola"></div>
           <div class="etiqueta" style="{shift_x}">
-            <b>{ciudad}</b> <span>{t_min}°C</span>
+            <b>{texto_ciudades}</b> <span>{t_min}°C</span>
           </div>
         </div>"""
 
