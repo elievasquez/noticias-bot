@@ -599,7 +599,7 @@ CSS_MANANA = """
     font-weight: 400; 
     line-height: 1.45; 
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -763,7 +763,7 @@ CSS_NOCHE = """
     font-weight: 400; 
     line-height: 1.45; 
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1139,16 +1139,16 @@ async def main_async():
 
     # 3. Noticias (10 categorías)
     datos_noticias = {
-        "Longaví": buscar_noticias('"Longaví" Chile', 1),
-        "Linares": buscar_noticias('"Linares" Chile', 1),
-        "Yerbas Buenas": buscar_noticias('"Yerbas Buenas" Chile', 1),
-        "Chile": noticias_tema("NATION", 1),
-        "Mundo": noticias_tema("WORLD", 1),
-        "Salud": buscar_noticias("salud bienestar Chile", 1),
-        "Tecnología": noticias_tema("TECHNOLOGY", 1),
-        "Deportes": noticias_tema("SPORTS", 1),
-        "Entretención": buscar_noticias("espectaculos entretenimiento Chile", 1),
-        "Tendencias": buscar_noticias("tendencias viral Chile", 1)
+        "Longaví": buscar_noticias('"Longaví" Chile', 2),
+        "Linares": buscar_noticias('"Linares" Chile', 2),
+        "Yerbas Buenas": buscar_noticias('"Yerbas Buenas" Chile', 2),
+        "Chile": noticias_tema("NATION", 2),
+        "Mundo": noticias_tema("WORLD", 2),
+        "Salud": buscar_noticias("salud bienestar Chile", 2),
+        "Tecnología": noticias_tema("TECHNOLOGY", 2),
+        "Deportes": noticias_tema("SPORTS", 2),
+        "Entretención": buscar_noticias("espectaculos entretenimiento Chile", 2),
+        "Tendencias": buscar_noticias("tendencias viral Chile", 2)
     }
 
     # 4. Combustibles
