@@ -39,7 +39,7 @@ TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 CNE_EMAIL = os.environ.get("CNE_EMAIL", "")
 CNE_PASSWORD = os.environ.get("CNE_PASSWORD", "")
-FORZAR_ENVIO = os.environ.get("FORZAR_ENVIO", "false").lower() == "true"
+FORZAR_ENVIO = os.environ.get("FORZAR_ENVIO", "true").lower() == "true"
 
 RADIO_KM_COMBUSTIBLE = 15
 
