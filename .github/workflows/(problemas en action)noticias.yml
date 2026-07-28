@@ -1,4 +1,4 @@
-name: Enviar Noticias Boletin
+name: Enviar Noticias Boletin antiguo
 
 on:
   schedule:
