@@ -165,26 +165,38 @@ def obtener_santoral_y_frase(ahora):
 
 def obtener_tabla_futbol(top_n=10):
     """Obtiene la tabla del Campeonato Nacional (con logos) desde la API pública de ESPN"""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
     try:
+        # 1. Obtener logos de equipos
         url_teams = "https://site.api.espn.com/apis/site/v2/sports/soccer/chi.1/teams"
-        r_teams = HTTP_SESSION.get(url_teams, timeout=8).json()
+        r_teams = HTTP_SESSION.get(url_teams, headers=headers, timeout=10)
         logos = {}
-        for t in r_teams["sports"][0]["leagues"][0]["teams"]:
-            equipo = t["team"]
-            if equipo.get("logos"):
-                logos[equipo["id"]] = equipo["logos"][0]["href"]
+        if r_teams.ok:
+            data_teams = r_teams.json()
+            for t in data_teams.get("sports", [{}])[0].get("leagues", [{}])[0].get("teams", []):
+                equipo = t.get("team", {})
+                if equipo.get("logos"):
+                    logos[equipo["id"]] = equipo["logos"][0]["href"]
 
+        # 2. Obtener tabla de posiciones
         url_standings = "https://site.api.espn.com/apis/v2/sports/soccer/chi.1/standings"
-        r = HTTP_SESSION.get(url_standings, timeout=8).json()
-        entradas = r["children"][0]["standings"]["entries"]
+        r = HTTP_SESSION.get(url_standings, headers=headers, timeout=10)
+        if not r.ok:
+            print(f"⚠️ Error ESPN API Standings: Status {r.status_code}")
+            return []
+
+        data = r.json()
+        entradas = data.get("children", [{}])[0].get("standings", {}).get("entries", [])
 
         tabla = []
         for e in entradas:
-            stats = {s["name"]: s["value"] for s in e["stats"]}
-            team_id = e["team"]["id"]
+            stats = {s["name"]: s.get("value", 0) for s in e.get("stats", [])}
+            team_id = e.get("team", {}).get("id", "")
             tabla.append({
                 "posicion": int(stats.get("rank", 0)),
-                "equipo": e["team"]["shortDisplayName"],
+                "equipo": e.get("team", {}).get("shortDisplayName", e.get("team", {}).get("displayName", "Equipo")),
                 "logo": logos.get(team_id, ""),
                 "pj": int(stats.get("gamesPlayed", 0)),
                 "g": int(stats.get("wins", 0)),
@@ -195,12 +207,22 @@ def obtener_tabla_futbol(top_n=10):
             })
         tabla.sort(key=lambda x: x["posicion"])
         return tabla[:top_n]
-    except Exception:
+    except Exception as err:
+        print(f"⚠️ Excepción al obtener tabla de fútbol: {err}")
         return []
 
 def renderizar_tabla_futbol(tabla):
     if not tabla:
-        return ""
+        return """
+        <div class="futbol-box">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span class="futbol-titulo">Campeonato Nacional</span>
+            <span class="futbol-subtitulo">Fútbol chileno</span>
+          </div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:8px;text-align:center;padding:10px;">
+            Tabla de posiciones no disponible en este momento.
+          </div>
+        </div>"""
 
     filas_html = ""
     for fila in tabla:
