@@ -100,10 +100,10 @@ def _haversine_km(lat1, lon1, lat2, lon2):
 def mejores_precios_combustible():
     estaciones = obtener_estaciones_cne()
     mejores = {
-        "93": {"monto": "—", "ciudad": "—"},
-        "95": {"monto": "—", "ciudad": "—"},
-        "97": {"monto": "—", "ciudad": "—"},
-        "Diésel": {"monto": "—", "ciudad": "—"}
+        "93": {"monto": "—", "ciudad": "—", "direccion": "—"},
+        "95": {"monto": "—", "ciudad": "—", "direccion": "—"},
+        "97": {"monto": "—", "ciudad": "—", "direccion": "—"},
+        "Diésel": {"monto": "—", "ciudad": "—", "direccion": "—"}
     }
     if not estaciones: 
         return mejores
@@ -120,6 +120,17 @@ def mejores_precios_combustible():
             comuna = comuna_raw
         else:
             comuna = "Maule"
+
+        # Extraer calle y número para armar la dirección exacta
+        calle = str(ubic.get("calle") or ubic.get("direccion_calle") or est.get("direccion_calle") or "").strip()
+        numero = str(ubic.get("numero") or ubic.get("direccion_numero") or est.get("direccion_numero") or "").strip()
+        
+        if calle and numero and numero.lower() != "none":
+            direccion_str = f"{calle} #{numero}"
+        elif calle:
+            direccion_str = calle
+        else:
+            direccion_str = "Dirección N/I"
 
         try:
             elat, elon = float(ubic.get("latitud")), float(ubic.get("longitud"))
@@ -139,12 +150,16 @@ def mejores_precios_combustible():
                     try:
                         p = float(precios[k].get("precio"))
                         if p > 0 and (k_label not in precios_min or p < precios_min[k_label][0]):
-                            precios_min[k_label] = (p, comuna)
+                            precios_min[k_label] = (p, comuna, direccion_str)
                     except (TypeError, ValueError): 
                         pass
 
     for k, v in precios_min.items():
-        mejores[k] = {"monto": f"${v[0]:,.0f}".replace(",", "."), "ciudad": v[1]}
+        mejores[k] = {
+            "monto": f"${v[0]:,.0f}".replace(",", "."), 
+            "ciudad": v[1],
+            "direccion": v[2]
+        }
     return mejores
 
 def buscar_noticias(query, n=2):
@@ -248,7 +263,8 @@ CSS_MANANA = """
   .precio-card { flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 10px; text-align: center; }
   .precio-card .tipo { font-size: 11px; color: #8FC1FF; font-weight: 700; letter-spacing: 1px; }
   .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
-  .precio-card .ciudad-p { font-size: 9.5px; color: #C9D3DA; margin-top: 4px; }
+  .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 8.5px; color: #C9D3DA; margin-top: 2px; line-height: 1.2; word-break: break-word; }
 
   .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #E5E9EC; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A97A1; }
 """
@@ -331,7 +347,8 @@ CSS_NOCHE = """
   .precio-card { flex: 1; background: #18222D; border: 1px solid #2A3B4C; border-radius: 8px; padding: 12px 10px; text-align: center; }
   .precio-card .tipo { font-size: 11px; color: #00E0FF; font-weight: 700; letter-spacing: 1px; }
   .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
-  .precio-card .ciudad-p { font-size: 9.5px; color: #8A9DAE; margin-top: 4px; }
+  .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 8.5px; color: #8A9DAE; margin-top: 2px; line-height: 1.2; word-break: break-word; }
 
   .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #2A3B4C; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A9DAE; }
 """
@@ -488,10 +505,30 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
     <div class="combustible-box">
       <div class="combustible-titulo">Combustible hoy <span class="nota">mejor precio en radio de 15 km</span></div>
       <div class="precios-fila">
-        <div class="precio-card"><div class="tipo">93</div><div class="monto">{datos_combustible['93']['monto']}</div><div class="ciudad-p">{datos_combustible['93']['ciudad']}</div></div>
-        <div class="precio-card"><div class="tipo">95</div><div class="monto">{datos_combustible['95']['monto']}</div><div class="ciudad-p">{datos_combustible['95']['ciudad']}</div></div>
-        <div class="precio-card"><div class="tipo">97</div><div class="monto">{datos_combustible['97']['monto']}</div><div class="ciudad-p">{datos_combustible['97']['ciudad']}</div></div>
-        <div class="precio-card"><div class="tipo">Diésel</div><div class="monto">{datos_combustible['Diésel']['monto']}</div><div class="ciudad-p">{datos_combustible['Diésel']['ciudad']}</div></div>
+        <div class="precio-card">
+          <div class="tipo">93</div>
+          <div class="monto">{datos_combustible['93']['monto']}</div>
+          <div class="ciudad-p">{datos_combustible['93']['ciudad']}</div>
+          <div class="direccion-p">{datos_combustible['93']['direccion']}</div>
+        </div>
+        <div class="precio-card">
+          <div class="tipo">95</div>
+          <div class="monto">{datos_combustible['95']['monto']}</div>
+          <div class="ciudad-p">{datos_combustible['95']['ciudad']}</div>
+          <div class="direccion-p">{datos_combustible['95']['direccion']}</div>
+        </div>
+        <div class="precio-card">
+          <div class="tipo">97</div>
+          <div class="monto">{datos_combustible['97']['monto']}</div>
+          <div class="ciudad-p">{datos_combustible['97']['ciudad']}</div>
+          <div class="direccion-p">{datos_combustible['97']['direccion']}</div>
+        </div>
+        <div class="precio-card">
+          <div class="tipo">Diésel</div>
+          <div class="monto">{datos_combustible['Diésel']['monto']}</div>
+          <div class="ciudad-p">{datos_combustible['Diésel']['ciudad']}</div>
+          <div class="direccion-p">{datos_combustible['Diésel']['direccion']}</div>
+        </div>
       </div>
     </div>
   </div>
