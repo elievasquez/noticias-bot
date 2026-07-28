@@ -2,8 +2,8 @@ name: Enviar Noticias Boletin
 
 on:
   schedule:
-    # 09:00 CLST = 12:00 UTC / 21:00 CLST = 00:00 UTC
-    - cron: '0 12,0 * * *'
+    # 9:00 y 21:00 hora Chile — cubre horario de verano (UTC-3) e invierno (UTC-4)
+    - cron: '0 12,13,0,1 * * *'
   workflow_dispatch:
 
 jobs:
