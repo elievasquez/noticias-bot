@@ -1,18 +1,23 @@
 """
 Boletín automático en UNA SOLA IMAGEN PNG (Diseño Dinámico: Mañana / Noche)
 Noticias, clima, heladas y precios de combustible para Maule.
+Optimizado para máxima legibilidad y tipografía limpia (Inter).
 """
 
 import os
 import sys
+import re
 import html
 import math
+import time
 import asyncio
 import urllib.parse
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import feedparser
 from playwright.async_api import async_playwright
 
@@ -51,8 +56,37 @@ DIAS_ESP = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Do
 MESES_ESP = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
 # ---------------------------------------------------------------------------
-# CONSULTAS DE DATOS
+# SESIÓN CON REINTENTOS
 # ---------------------------------------------------------------------------
+
+def crear_sesion_robusta():
+    session = requests.Session()
+    retries = Retry(
+        total=5,
+        backoff_factor=2,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
+    adapter = HTTPAdapter(max_retries=retries)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+HTTP_SESSION = crear_sesion_robusta()
+
+# ---------------------------------------------------------------------------
+# CONSULTAS Y LIMPIEZA DE DATOS
+# ---------------------------------------------------------------------------
+
+def limpiar_titulo_noticia(titulo_raw):
+    """
+    Elimina la fuente duplicada al final del título de Google News
+    Ej: "Noticia importante - La Tercera - BioBio" -> "Noticia importante"
+    """
+    partes = titulo_raw.rsplit(" - ", 1)
+    if len(partes) > 1:
+        return partes[0].strip()
+    return titulo_raw.strip()
 
 def obtener_clima(lat, lon):
     url = "https://api.open-meteo.com/v1/forecast"
@@ -62,7 +96,7 @@ def obtener_clima(lat, lon):
         "daily": "temperature_2m_max,temperature_2m_min,weather_code",
         "timezone": "America/Santiago", "forecast_days": 2,
     }
-    r = requests.get(url, params=params, timeout=20)
+    r = HTTP_SESSION.get(url, params=params, timeout=30)
     r.raise_for_status()
     return r.json()
 
@@ -73,7 +107,7 @@ def cne_login():
     global _CNE_TOKEN
     if _CNE_TOKEN or not CNE_EMAIL or not CNE_PASSWORD: return _CNE_TOKEN
     try:
-        r = requests.post("https://api.cne.cl/api/login", data={"email": CNE_EMAIL, "password": CNE_PASSWORD}, headers={"Accept": "application/json"}, timeout=20)
+        r = HTTP_SESSION.post("https://api.cne.cl/api/login", data={"email": CNE_EMAIL, "password": CNE_PASSWORD}, headers={"Accept": "application/json"}, timeout=20)
         if r.ok: _CNE_TOKEN = r.json().get("token")
     except Exception: pass
     return _CNE_TOKEN
@@ -86,7 +120,7 @@ def obtener_estaciones_cne():
         _CNE_ESTACIONES = []
         return _CNE_ESTACIONES
     try:
-        r = requests.get("https://api.cne.cl/api/v4/estaciones", headers={"Accept": "application/json", "Authorization": f"Bearer {token}"}, timeout=30)
+        r = HTTP_SESSION.get("https://api.cne.cl/api/v4/estaciones", headers={"Accept": "application/json", "Authorization": f"Bearer {token}"}, timeout=30)
         _CNE_ESTACIONES = r.json() if r.ok and isinstance(r.json(), list) else []
     except Exception: _CNE_ESTACIONES = []
     return _CNE_ESTACIONES
@@ -98,10 +132,6 @@ def _haversine_km(lat1, lon1, lat2, lon2):
     return 2 * r * math.asin(math.sqrt(a))
 
 def adaptar_direccion(estacion, ubicacion):
-    """
-    Busca la dirección en múltiples campos posibles de la API CNE
-    y la formatea de manera compacta para la tarjeta visual.
-    """
     dir_raw = (
         ubicacion.get("direccion") or 
         ubicacion.get("direccion_calle") or 
@@ -193,7 +223,8 @@ def buscar_noticias(query, n=2):
     res = []
     for e in feed.entries[:n]:
         fuente = e.source.title if hasattr(e, "source") and getattr(e.source, "title", None) else "Prensa"
-        res.append({"titulo": e.title, "fuente": fuente})
+        titulo_limpio = limpiar_titulo_noticia(e.title)
+        res.append({"titulo": titulo_limpio, "fuente": fuente})
     return res
 
 def noticias_tema(tema, n=2):
@@ -202,179 +233,182 @@ def noticias_tema(tema, n=2):
     res = []
     for e in feed.entries[:n]:
         fuente = e.source.title if hasattr(e, "source") and getattr(e.source, "title", None) else "Noticias"
-        res.append({"titulo": e.title, "fuente": fuente})
+        titulo_limpio = limpiar_titulo_noticia(e.title)
+        res.append({"titulo": titulo_limpio, "fuente": fuente})
     return res
 
 # ---------------------------------------------------------------------------
-# ESTILOS CSS (MAÑANA VS NOCHE)
+# ESTILOS CSS CON TIPOGRAFÍA "INTER" Y MAYOR CONTRASTE
 # ---------------------------------------------------------------------------
 
 CSS_MANANA = """
-  body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; color: #33404A; background: #FFFFFF; width: 794px; }
-  .pagina { padding: 0 0 28px 0; background: #FFFFFF; }
+  @import url('https://rsms.me/inter/inter.css');
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #2C3E50; background: #FFFFFF; width: 794px; -webkit-font-smoothing: antialiased; }
+  .pagina { padding: 0 0 32px 0; background: #FFFFFF; }
   
   .masthead { padding: 40px 48px 22px 48px; }
   .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #2F80ED; font-weight: 700; background: #E5E9EC; padding: 4px 10px; border-radius: 4px; }
-  .titulo { font-weight: 700; font-size: 42px; color: #5A6E7F; letter-spacing: -0.5px; margin-top: 12px; }
-  .titulo .acento { color: #2F80ED; }
-  .fecha-box { text-align: right; color: #8A97A1; font-size: 13px; line-height: 1.6; }
-  .fecha-box .dia { font-size: 15px; color: #5A6E7F; font-weight: 600; }
-  .masthead-rule { margin-top: 22px; height: 2px; background: #E5E9EC; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: #2F80ED; }
-  .comunas { margin-top: 14px; color: #8A97A1; font-size: 12.5px; letter-spacing: 0.3px; }
-  .comunas b { color: #5A6E7F; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #1D63ED; font-weight: 700; background: #EBF3FE; padding: 5px 12px; border-radius: 6px; }
+  .titulo { font-weight: 800; font-size: 44px; color: #1E293B; letter-spacing: -1px; margin-top: 10px; }
+  .titulo .acento { color: #1D63ED; }
+  .fecha-box { text-align: right; color: #64748B; font-size: 13px; line-height: 1.5; }
+  .fecha-box .dia { font-size: 15px; color: #1E293B; font-weight: 600; }
+  .masthead-rule { margin-top: 22px; height: 2px; background: #E2E8F0; position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #1D63ED; }
+  .comunas { margin-top: 14px; color: #64748B; font-size: 13px; letter-spacing: 0.2px; }
+  .comunas b { color: #1E293B; font-weight: 600; }
 
   .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 19px; color: #5A6E7F; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .seccion-titulo .barra { width: 22px; height: 4px; background: #2F80ED; border-radius: 2px; display: inline-block; }
+  .seccion-titulo { font-weight: 700; font-size: 20px; color: #0F172A; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .seccion-titulo .barra { width: 18px; height: 4px; background: #1D63ED; border-radius: 2px; display: inline-block; }
 
   .clima-fila { display: flex; gap: 14px; }
-  .clima-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 16px 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 16.5px; color: #5A6E7F; }
-  .clima-card .desc { font-size: 12px; color: #8A97A1; margin-top: 2px; }
-  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
-  .clima-card .temp { font-size: 38px; font-weight: 700; color: #2F80ED; line-height: 1; }
-  .clima-card .minmax { font-size: 12px; color: #8A97A1; margin-top: 8px; }
-  .clima-card .viento { font-size: 12px; color: #5A6E7F; font-weight: 600; margin-top: 4px; }
+  .clima-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #0F172A; }
+  .clima-card .desc { font-size: 12.5px; color: #64748B; margin-top: 2px; font-weight: 500; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
+  .clima-card .temp { font-size: 40px; font-weight: 800; color: #1D63ED; line-height: 0.9; letter-spacing: -1px; }
+  .clima-card .minmax { font-size: 12px; color: #64748B; font-weight: 500; }
+  .clima-card .viento { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
 
-  .gauge-box { margin-top: 14px; background: #FFFFFF; border: 1px solid #E5E9EC; border-radius: 10px; padding: 35px 26px 35px 26px; }
+  .gauge-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 35px 26px; }
   .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 14.5px; color: #E0523F; }
-  .gauge-nota { font-size: 11px; color: #8A97A1; }
-  .gauge-track { position: relative; height: 6px; background: #E5E9EC; border-radius: 3px; }
-  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #F6C9C1; border-radius: 3px 0 0 3px; }
-  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #5A6E7F; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #5A6E7F; background: #FFFFFF; padding: 1px 5px; border-radius: 4px; border: 1px solid #E5E9EC; }
+  .gauge-titulo { font-weight: 700; font-size: 15px; color: #DC2626; letter-spacing: -0.2px; }
+  .gauge-nota { font-size: 11.5px; color: #64748B; font-weight: 500; }
+  .gauge-track { position: relative; height: 6px; background: #E2E8F0; border-radius: 3px; }
+  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #FCA5A5; border-radius: 3px 0 0 3px; }
+  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #475569; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #334155; background: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1; }
   
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #2F80ED; border: 3px solid #FFFFFF; box-shadow: 0 0 0 1px #E5E9EC; }
-  .gauge-punto.alerta .bola { background: #E0523F; }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #1D63ED; border: 3px solid #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .gauge-punto.alerta .bola { background: #DC2626; }
   .gauge-punto .etiqueta { 
     position: absolute; 
     left: 50%; 
-    font-size: 10px; 
+    font-size: 10.5px; 
     white-space: nowrap; 
-    line-height: 1.1; 
-    padding: 3px 6px; 
-    border-radius: 4px; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
     display: flex; 
     gap: 4px; 
     align-items: center; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06); 
     background: #FFFFFF; 
-    color: #33404A; 
-    border: 1px solid #E5E9EC; 
+    color: #0F172A; 
+    border: 1px solid #E2E8F0; 
   }
-  .gauge-punto.pos-abajo .etiqueta { top: 24px; }
-  .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
+  .gauge-punto.pos-abajo .etiqueta { top: 25px; }
+  .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
   .gauge-punto .etiqueta b { font-weight: 700; }
-  .gauge-punto.alerta .etiqueta b { color: #E0523F; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A97A1; }
+  .gauge-punto.alerta .etiqueta b { color: #DC2626; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #64748B; font-weight: 500; }
 
-  .noticias-cols { display: flex; gap: 30px; margin-top: 2px; }
+  .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
   .col { flex: 1; }
-  .subgrupo { margin-bottom: 14px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #2F80ED; text-transform: uppercase; letter-spacing: 1px; background: #E5E9EC; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
-  .noticia { font-size: 12.5px; line-height: 1.45; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid #E5E9EC; }
-  .noticia .titulo-n { color: #33404A; font-weight: 500; }
-  .noticia .fuente-n { color: #8A97A1; font-size: 10.5px; margin-top: 2px; }
+  .subgrupo { margin-bottom: 18px; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #1D63ED; text-transform: uppercase; letter-spacing: 1px; background: #EBF3FE; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+  
+  .noticia { font-size: 13px; line-height: 1.5; margin-bottom: 10px; padding: 10px 12px; background: #F8FAFC; border-left: 3px solid #1D63ED; border-radius: 0 8px 8px 0; }
+  .noticia .titulo-n { color: #1E293B; font-weight: 600; letter-spacing: -0.1px; }
+  .noticia .fuente-n { color: #64748B; font-size: 11px; margin-top: 4px; font-weight: 500; }
 
-  .combustible-box { margin-top: 10px; background: #5A6E7F; border-radius: 10px; padding: 20px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 10.5px; color: #C9D3DA; font-weight: 400; }
-  .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #8FC1FF; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 20px; color: #FFFFFF; font-weight: 700; margin-top: 2px; }
-  .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 8.5px; color: #D5E1EA; margin-top: 2px; line-height: 1.25; min-height: 22px; display: flex; align-items: center; justify-content: center; }
+  .combustible-box { margin-top: 10px; background: #0F172A; border-radius: 12px; padding: 22px 26px; }
+  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
+  .precio-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
+  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #E5E9EC; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A97A1; }
+  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; font-size: 11px; color: #64748B; font-weight: 500; }
 """
 
 CSS_NOCHE = """
-  body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; color: #E1E7EC; background: #18222D; width: 794px; }
-  .pagina { padding: 0 0 28px 0; background: #18222D; }
+  @import url('https://rsms.me/inter/inter.css');
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #F1F5F9; background: #0F172A; width: 794px; -webkit-font-smoothing: antialiased; }
+  .pagina { padding: 0 0 32px 0; background: #0F172A; }
   
   .masthead { padding: 40px 48px 22px 48px; }
   .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #00E0FF; font-weight: 700; background: #233242; padding: 4px 10px; border-radius: 4px; }
-  .titulo { font-weight: 700; font-size: 42px; color: #FFFFFF; letter-spacing: -0.5px; margin-top: 12px; }
-  .titulo .acento { color: #00E0FF; }
-  .fecha-box { text-align: right; color: #8A9DAE; font-size: 13px; line-height: 1.6; }
-  .fecha-box .dia { font-size: 15px; color: #E1E7EC; font-weight: 600; }
-  .masthead-rule { margin-top: 22px; height: 2px; background: #2A3B4C; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: #00E0FF; }
-  .comunas { margin-top: 14px; color: #8A9DAE; font-size: 12.5px; letter-spacing: 0.3px; }
-  .comunas b { color: #FFFFFF; }
+  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; font-weight: 700; background: #1E293B; padding: 5px 12px; border-radius: 6px; border: 1px solid #334155; }
+  .titulo { font-weight: 800; font-size: 44px; color: #FFFFFF; letter-spacing: -1px; margin-top: 10px; }
+  .titulo .acento { color: #38BDF8; }
+  .fecha-box { text-align: right; color: #94A3B8; font-size: 13px; line-height: 1.5; }
+  .fecha-box .dia { font-size: 15px; color: #F8FAFC; font-weight: 600; }
+  .masthead-rule { margin-top: 22px; height: 2px; background: #1E293B; position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #38BDF8; }
+  .comunas { margin-top: 14px; color: #94A3B8; font-size: 13px; letter-spacing: 0.2px; }
+  .comunas b { color: #FFFFFF; font-weight: 600; }
 
   .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 19px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .seccion-titulo .barra { width: 22px; height: 4px; background: #00E0FF; border-radius: 2px; display: inline-block; }
+  .seccion-titulo { font-weight: 700; font-size: 20px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .seccion-titulo .barra { width: 18px; height: 4px; background: #38BDF8; border-radius: 2px; display: inline-block; }
 
   .clima-fila { display: flex; gap: 14px; }
-  .clima-card { flex: 1; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 16px 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 16.5px; color: #FFFFFF; }
-  .clima-card .desc { font-size: 12px; color: #8A9DAE; margin-top: 2px; }
-  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
-  .clima-card .temp { font-size: 38px; font-weight: 700; color: #00E0FF; line-height: 1; }
-  .clima-card .minmax { font-size: 12px; color: #8A9DAE; margin-top: 8px; }
-  .clima-card .viento { font-size: 12px; color: #E1E7EC; font-weight: 600; margin-top: 4px; }
+  .clima-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #FFFFFF; }
+  .clima-card .desc { font-size: 12.5px; color: #94A3B8; margin-top: 2px; font-weight: 500; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
+  .clima-card .temp { font-size: 40px; font-weight: 800; color: #38BDF8; line-height: 0.9; letter-spacing: -1px; }
+  .clima-card .minmax { font-size: 12px; color: #94A3B8; font-weight: 500; }
+  .clima-card .viento { font-size: 12px; color: #CBD5E1; font-weight: 600; margin-top: 4px; }
 
-  .gauge-box { margin-top: 14px; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 35px 26px 35px 26px; }
+  .gauge-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 35px 26px; }
   .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 14.5px; color: #FF6B6B; }
-  .gauge-nota { font-size: 11px; color: #8A9DAE; }
-  .gauge-track { position: relative; height: 6px; background: #2A3B4C; border-radius: 3px; }
-  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #5A2A2A; border-radius: 3px 0 0 3px; }
-  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #8A9DAE; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #FFFFFF; background: #212E3D; padding: 1px 5px; border-radius: 4px; border: 1px solid #2A3B4C; }
+  .gauge-titulo { font-weight: 700; font-size: 15px; color: #F87171; letter-spacing: -0.2px; }
+  .gauge-nota { font-size: 11.5px; color: #94A3B8; font-weight: 500; }
+  .gauge-track { position: relative; height: 6px; background: #334155; border-radius: 3px; }
+  .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #991B1B; border-radius: 3px 0 0 3px; }
+  .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #94A3B8; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #FFFFFF; background: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #334155; }
   
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #00E0FF; border: 3px solid #212E3D; box-shadow: 0 0 0 1px #2A3B4C; }
-  .gauge-punto.alerta .bola { background: #FF6B6B; }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #38BDF8; border: 3px solid #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .gauge-punto.alerta .bola { background: #F87171; }
   .gauge-punto .etiqueta { 
     position: absolute; 
     left: 50%; 
-    font-size: 10px; 
+    font-size: 10.5px; 
     white-space: nowrap; 
-    line-height: 1.1; 
-    padding: 3px 6px; 
-    border-radius: 4px; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
     display: flex; 
     gap: 4px; 
     align-items: center; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-    background: #18222D; 
-    color: #E1E7EC; 
-    border: 1px solid #2A3B4C; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3); 
+    background: #0F172A; 
+    color: #F1F5F9; 
+    border: 1px solid #334155; 
   }
-  .gauge-punto.pos-abajo .etiqueta { top: 24px; }
-  .gauge-punto.pos-arriba .etiqueta { bottom: 24px; }
+  .gauge-punto.pos-abajo .etiqueta { top: 25px; }
+  .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
   .gauge-punto .etiqueta b { font-weight: 700; }
-  .gauge-punto.alerta .etiqueta b { color: #FF6B6B; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10px; color: #8A9DAE; }
+  .gauge-punto.alerta .etiqueta b { color: #F87171; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #94A3B8; font-weight: 500; }
 
-  .noticias-cols { display: flex; gap: 30px; margin-top: 2px; }
+  .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
   .col { flex: 1; }
-  .subgrupo { margin-bottom: 14px; }
-  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #00E0FF; text-transform: uppercase; letter-spacing: 1px; background: #233242; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
-  .noticia { font-size: 12.5px; line-height: 1.45; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid #2A3B4C; }
-  .noticia .titulo-n { color: #E1E7EC; font-weight: 500; }
-  .noticia .fuente-n { color: #8A9DAE; font-size: 10.5px; margin-top: 2px; }
+  .subgrupo { margin-bottom: 18px; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; background: #1E293B; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #334155; }
+  
+  .noticia { font-size: 13px; line-height: 1.5; margin-bottom: 10px; padding: 10px 12px; background: #1E293B; border-left: 3px solid #38BDF8; border-radius: 0 8px 8px 0; border-top: 1px solid #2B394A; border-right: 1px solid #2B394A; border-bottom: 1px solid #2B394A; }
+  .noticia .titulo-n { color: #F8FAFC; font-weight: 500; letter-spacing: -0.1px; }
+  .noticia .fuente-n { color: #94A3B8; font-size: 11px; margin-top: 4px; font-weight: 500; }
 
-  .combustible-box { margin-top: 10px; background: #212E3D; border: 1px solid #2A3B4C; border-radius: 10px; padding: 20px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 10.5px; color: #8A9DAE; font-weight: 400; }
-  .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #18222D; border: 1px solid #2A3B4C; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #00E0FF; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 20px; color: #FFFFFF; font-weight: 700; margin-top: 2px; }
-  .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 8.5px; color: #8A9DAE; margin-top: 2px; line-height: 1.25; min-height: 22px; display: flex; align-items: center; justify-content: center; }
+  .combustible-box { margin-top: 10px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 22px 26px; }
+  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
+  .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
+  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
+  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #2A3B4C; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A9DAE; }
+  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #1E293B; display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; font-weight: 500; }
 """
 
 # ---------------------------------------------------------------------------
@@ -396,7 +430,6 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
     edicion_txt = "Edición de la mañana" if es_manana else "Edición de la noche"
     css_tema = CSS_MANANA if es_manana else CSS_NOCHE
     
-    # Textos dinámicos adaptados al horario
     titulo_clima = "Clima para hoy" if es_manana else "Pronóstico clima para mañana"
     subtitulo_heladas = "mínima para hoy en la madrugada" if es_manana else "mínima para la próxima madrugada"
 
@@ -472,7 +505,6 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
 <html lang="es-CL">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   {css_tema}
@@ -565,7 +597,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, dato
 </html>"""
 
 # ---------------------------------------------------------------------------
-# ENVÍO Y MAIN
+# ENVÍO A TELEGRAM
 # ---------------------------------------------------------------------------
 
 def enviar_foto_telegram(imagen_bytes):
@@ -577,11 +609,15 @@ def enviar_foto_telegram(imagen_bytes):
     payload = {"chat_id": TELEGRAM_CHAT_ID}
     files = {"photo": ("boletin.png", imagen_bytes, "image/png")}
 
-    resp = requests.post(url, data=payload, files=files, timeout=30)
-    print(f"DEBUG Telegram Status Code: {resp.status_code}")
-    if not resp.ok:
-        print(f"Error Telegram: {resp.text}", file=sys.stderr)
+    try:
+        resp = HTTP_SESSION.post(url, data=payload, files=files, timeout=60)
+        print(f"DEBUG Telegram Status Code: {resp.status_code}")
         resp.raise_for_status()
+        print("Boletín enviado con éxito a Telegram.")
+    except requests.exceptions.ReadTimeout:
+        print("ERROR: Timeout leyendo la respuesta de Telegram tras varios reintentos.", file=sys.stderr)
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR al enviar a Telegram: {e}", file=sys.stderr)
 
 async def main_async():
     ahora = datetime.now(ZONA_CL)
@@ -600,7 +636,6 @@ async def main_async():
         curr = raw["current"]
         daily = raw["daily"]
         
-        # En la mañana destaca la temperatura actual; en la noche destaca la MÁXIMA prevista para mañana
         temp_destacada = round(curr["temperature_2m"]) if es_manana else round(daily["temperature_2m_max"][idx_dia])
         
         datos_clima[ciudad] = {
@@ -631,7 +666,6 @@ async def main_async():
 
     # 5. Enviar
     enviar_foto_telegram(imagen_bytes)
-    print(f"Boletín enviado con éxito ({'Edición Mañana - Modo Claro' if es_manana else 'Edición Noche - Modo Oscuro'}).")
 
 def main():
     asyncio.run(main_async())
