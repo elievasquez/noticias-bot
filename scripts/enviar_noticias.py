@@ -97,6 +97,44 @@ def _haversine_km(lat1, lon1, lat2, lon2):
     a = (math.sin(d_lat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2)
     return 2 * r * math.asin(math.sqrt(a))
 
+def adaptar_direccion(estacion, ubicacion):
+    """
+    Busca la dirección en múltiples campos posibles de la API CNE
+    y la formatea de manera compacta para la tarjeta visual.
+    """
+    dir_raw = (
+        ubicacion.get("direccion") or 
+        ubicacion.get("direccion_calle") or 
+        estacion.get("direccion") or 
+        estacion.get("direccion_calle") or 
+        ""
+    ).strip()
+
+    num_raw = str(
+        ubicacion.get("numero") or 
+        ubicacion.get("direccion_numero") or 
+        estacion.get("direccion_numero") or 
+        ""
+    ).strip()
+
+    if dir_raw and num_raw and num_raw.lower() not in ["none", "null", "0", "s/n", "sn"]:
+        if num_raw not in dir_raw:
+            dir_raw = f"{dir_raw} #{num_raw}"
+
+    if not dir_raw or dir_raw.lower() in ["none", "null"]:
+        # Intenta usar la razón social o nombre comercial si no hay dirección
+        dir_raw = estacion.get("nombre_fantasia") or estacion.get("razon_social") or "Sin dirección"
+
+    # Acortar prefijos comunes para optimizar el espacio visual
+    dir_raw = dir_raw.replace("Avenida", "Av.").replace("AVENIDA", "Av.")
+    dir_raw = dir_raw.replace("Panamericana", "Panam.").replace("PANAMERICANA", "Panam.")
+
+    # Truncar si la dirección es demasiado larga para la tarjeta
+    if len(dir_raw) > 22:
+        dir_raw = dir_raw[:20].strip() + "..."
+
+    return dir_raw
+
 def mejores_precios_combustible():
     estaciones = obtener_estaciones_cne()
     mejores = {
@@ -112,7 +150,7 @@ def mejores_precios_combustible():
     for est in estaciones:
         ubic = est.get("ubicacion") or {}
         
-        # Extraer correctamente el nombre de la comuna desde el objeto/dict o string
+        # Extraer nombre de la comuna
         comuna_raw = ubic.get("comuna")
         if isinstance(comuna_raw, dict):
             comuna = comuna_raw.get("nombre") or comuna_raw.get("nom_comuna") or "Maule"
@@ -121,23 +159,14 @@ def mejores_precios_combustible():
         else:
             comuna = "Maule"
 
-        # Extraer calle y número para armar la dirección exacta
-        calle = str(ubic.get("calle") or ubic.get("direccion_calle") or est.get("direccion_calle") or "").strip()
-        numero = str(ubic.get("numero") or ubic.get("direccion_numero") or est.get("direccion_numero") or "").strip()
-        
-        if calle and numero and numero.lower() != "none":
-            direccion_str = f"{calle} #{numero}"
-        elif calle:
-            direccion_str = calle
-        else:
-            direccion_str = "Dirección N/I"
+        # Formatear la dirección adaptada
+        direccion_str = adaptar_direccion(est, ubic)
 
         try:
             elat, elon = float(ubic.get("latitud")), float(ubic.get("longitud"))
         except (TypeError, ValueError): 
             continue
         
-        # Verificar si la estación está dentro del radio de 15 km de alguna de tus ciudades
         cerca = any(_haversine_km(datos["lat"], datos["lon"], elat, elon) <= RADIO_KM_COMBUSTIBLE for datos in CIUDADES.values())
         if not cerca: 
             continue
@@ -260,11 +289,11 @@ CSS_MANANA = """
   .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
   .combustible-titulo span.nota { font-size: 10.5px; color: #C9D3DA; font-weight: 400; }
   .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 10px; text-align: center; }
+  .precio-card { flex: 1; background: #4C5F6F; border-radius: 8px; padding: 12px 8px; text-align: center; }
   .precio-card .tipo { font-size: 11px; color: #8FC1FF; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
+  .precio-card .monto { font-size: 20px; color: #FFFFFF; font-weight: 700; margin-top: 2px; }
   .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 8.5px; color: #C9D3DA; margin-top: 2px; line-height: 1.2; word-break: break-word; }
+  .precio-card .direccion-p { font-size: 8.5px; color: #D5E1EA; margin-top: 2px; line-height: 1.25; min-height: 22px; display: flex; align-items: center; justify-content: center; }
 
   .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #E5E9EC; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A97A1; }
 """
@@ -344,11 +373,11 @@ CSS_NOCHE = """
   .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
   .combustible-titulo span.nota { font-size: 10.5px; color: #8A9DAE; font-weight: 400; }
   .precios-fila { display: flex; gap: 14px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #18222D; border: 1px solid #2A3B4C; border-radius: 8px; padding: 12px 10px; text-align: center; }
+  .precio-card { flex: 1; background: #18222D; border: 1px solid #2A3B4C; border-radius: 8px; padding: 12px 8px; text-align: center; }
   .precio-card .tipo { font-size: 11px; color: #00E0FF; font-weight: 700; letter-spacing: 1px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 700; margin-top: 4px; }
+  .precio-card .monto { font-size: 20px; color: #FFFFFF; font-weight: 700; margin-top: 2px; }
   .precio-card .ciudad-p { font-size: 10px; color: #FFFFFF; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 8.5px; color: #8A9DAE; margin-top: 2px; line-height: 1.2; word-break: break-word; }
+  .precio-card .direccion-p { font-size: 8.5px; color: #8A9DAE; margin-top: 2px; line-height: 1.25; min-height: 22px; display: flex; align-items: center; justify-content: center; }
 
   .footer { margin: 24px 48px 0 48px; padding-top: 14px; border-top: 1px solid #2A3B4C; display: flex; justify-content: space-between; font-size: 10.5px; color: #8A9DAE; }
 """
@@ -393,9 +422,7 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
           </div>
         </div>"""
 
-    # -----------------------------------------------------------------------
-    # GAUGE HELADAS CON PREVENCIÓN DE SOLAPAMIENTO
-    # -----------------------------------------------------------------------
+    # Gauge Heladas
     min_temp, max_temp = -2.0, 10.0
     rango = max_temp - min_temp
     pos_cero = ((0.0 - min_temp) / rango) * 100
@@ -403,22 +430,19 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
     ciudades_ordenadas = sorted(datos_clima.items(), key=lambda x: x[1]['tmin_madrugada'])
     
     gauge_puntos_html = ""
-    ultimas_pos = []  # Para guardar los porcentajes y detectar cercanía
+    ultimas_pos = []
 
     for idx, (ciudad, info) in enumerate(ciudades_ordenadas):
         t_min = info['tmin_madrugada']
         pct = max(3, min(97, ((t_min - min_temp) / rango) * 100))
         alerta_cls = "alerta" if t_min <= UMBRAL_HELADA_C else ""
         
-        # Alternar posición vertical (arriba / abajo)
         offset_v = "pos-arriba" if idx % 2 == 0 else "pos-abajo"
         
-        # Ajuste de desplazamiento horizontal en caso de colisión (< 12% de diferencia)
-        shift_x = "transform: translateX(-50%);" # Centrado por defecto
+        shift_x = "transform: translateX(-50%);"
         if ultimas_pos:
             pos_anterior = ultimas_pos[-1]
             if abs(pct - pos_anterior) < 12:
-                # Si está muy cerca del anterior, desplazamos levemente
                 shift_x = "transform: translateX(-15%);" if idx % 2 == 0 else "transform: translateX(-85%);"
         
         ultimas_pos.append(pct)
@@ -509,25 +533,25 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
           <div class="tipo">93</div>
           <div class="monto">{datos_combustible['93']['monto']}</div>
           <div class="ciudad-p">{datos_combustible['93']['ciudad']}</div>
-          <div class="direccion-p">{datos_combustible['93']['direccion']}</div>
+          <div class="direccion-p">{html.escape(datos_combustible['93']['direccion'])}</div>
         </div>
         <div class="precio-card">
           <div class="tipo">95</div>
           <div class="monto">{datos_combustible['95']['monto']}</div>
           <div class="ciudad-p">{datos_combustible['95']['ciudad']}</div>
-          <div class="direccion-p">{datos_combustible['95']['direccion']}</div>
+          <div class="direccion-p">{html.escape(datos_combustible['95']['direccion'])}</div>
         </div>
         <div class="precio-card">
           <div class="tipo">97</div>
           <div class="monto">{datos_combustible['97']['monto']}</div>
           <div class="ciudad-p">{datos_combustible['97']['ciudad']}</div>
-          <div class="direccion-p">{datos_combustible['97']['direccion']}</div>
+          <div class="direccion-p">{html.escape(datos_combustible['97']['direccion'])}</div>
         </div>
         <div class="precio-card">
           <div class="tipo">Diésel</div>
           <div class="monto">{datos_combustible['Diésel']['monto']}</div>
           <div class="ciudad-p">{datos_combustible['Diésel']['ciudad']}</div>
-          <div class="direccion-p">{datos_combustible['Diésel']['direccion']}</div>
+          <div class="direccion-p">{html.escape(datos_combustible['Diésel']['direccion'])}</div>
         </div>
       </div>
     </div>
@@ -566,7 +590,6 @@ async def main_async():
         print(f"Hora actual en Chile: {ahora.strftime('%H:%M')} — no toca enviar. Saliendo.")
         return
 
-    # Se considera mañana antes de las 15:00 hrs
     es_manana = ahora.hour < 15
 
     # 1. Clima
