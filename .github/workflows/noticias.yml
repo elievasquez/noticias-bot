@@ -34,4 +34,4 @@ jobs:
           CNE_PASSWORD: ${{ secrets.CNE_PASSWORD }}
           TZ: "America/Santiago"
           FORZAR_ENVIO: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
-        run: python enviar_noticias.py
+        run: python scripts/enviar_noticias.py
