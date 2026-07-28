@@ -461,241 +461,289 @@ def noticias_tema(tema, n=1):
     return res
 
 # ==========================================
-# ESTILOS CSS CON TIPOGRAFÍA INTER
+# ESTILOS CSS CON TIPOGRAFÍA INTER OPTIMIZADA
 # ==========================================
 
 CSS_MANANA = """
   @import url('https://rsms.me/inter/inter.css');
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #2C3E50; background: #FFFFFF; width: 794px; -webkit-font-smoothing: antialiased; }
-  .pagina { padding: 0 0 32px 0; background: #FFFFFF; }
   
-  .masthead { padding: 40px 48px 22px 48px; }
-  .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #1D63ED; font-weight: 700; background: #EBF3FE; padding: 5px 12px; border-radius: 6px; }
-  .titulo { font-weight: 800; font-size: 44px; color: #1E293B; letter-spacing: -1px; margin-top: 10px; }
-  .titulo .acento { color: #1D63ED; }
-  .fecha-box { text-align: right; color: #64748B; font-size: 13px; line-height: 1.5; }
-  .fecha-box .dia { font-size: 15px; color: #1E293B; font-weight: 600; }
-  .fecha-box .santoral { font-size: 12px; color: #1D63ED; font-weight: 500; margin-top: 2px; }
-  .masthead-rule { margin-top: 22px; height: 2px; background: #E2E8F0; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #1D63ED; }
-  .comunas { margin-top: 14px; color: #64748B; font-size: 13px; letter-spacing: 0.2px; }
-  .comunas b { color: #1E293B; font-weight: 600; }
+  :root {
+    --bg-page: #FFFFFF;
+    --bg-card: #F8FAFC;
+    --border-color: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --accent: #1D63ED;
+    --accent-bg: #EBF3FE;
+  }
 
-  /* METRICAS */
-  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; }
-  .metric-item { font-size: 11px; color: #64748B; font-weight: 500; }
-  .metric-value { font-weight: 700; font-size: 14px; color: #1D63ED; margin-top: 2px; }
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+    color: var(--text-primary); 
+    background: var(--bg-page); 
+    width: 794px; 
+    -webkit-font-smoothing: antialiased; 
+    line-height: 1.48;
+  }
+  
+  .pagina { padding: 0 0 32px 0; background: var(--bg-page); }
+  
+  .masthead { padding: 36px 44px 20px 44px; }
+  .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .eyebrow { font-size: 11.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent); font-weight: 700; background: var(--accent-bg); padding: 6px 12px; border-radius: 6px; }
+  .titulo { font-weight: 800; font-size: 38px; color: var(--text-primary); letter-spacing: -0.02em; margin-top: 8px; line-height: 1.1; }
+  .titulo .acento { color: var(--accent); }
+  
+  .fecha-box { text-align: right; color: var(--text-secondary); font-size: 13.5px; line-height: 1.4; }
+  .fecha-box .dia { font-size: 15px; color: var(--text-primary); font-weight: 600; }
+  .fecha-box .santoral { font-size: 12.5px; color: var(--accent); font-weight: 500; margin-top: 2px; }
+  
+  .masthead-rule { margin-top: 18px; height: 2px; background: var(--border-color); position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: var(--accent); }
+  .comunas { margin-top: 12px; color: var(--text-secondary); font-size: 13.5px; letter-spacing: 0.1px; }
+  .comunas b { color: var(--text-primary); font-weight: 600; }
+
+  /* METRICAS (H3 / Body) */
+  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin: 16px 44px 0 44px; text-align: center; }
+  .metric-item { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .metric-value { font-weight: 700; font-size: 15px; color: var(--accent); margin-top: 3px; }
 
   /* FERIADO */
-  .holiday-box { margin: 16px 48px 0 48px; background: #EBF3FE; border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
-  .holiday-title { font-size: 11px; font-weight: 700; color: #1D63ED; text-transform: uppercase; letter-spacing: 0.5px; }
-  .holiday-desc { font-size: 13px; font-weight: 700; color: #1E293B; margin-top: 2px; }
-  .holiday-badge { background: #1D63ED; color: #FFFFFF; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .holiday-box { margin: 16px 44px 0 44px; background: var(--accent-bg); border: 1px solid #BFDBFE; border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+  .holiday-title { font-size: 11.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  .holiday-desc { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+  .holiday-badge { background: var(--accent); color: #FFFFFF; font-weight: 700; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
 
-  .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 20px; color: #0F172A; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
-  .seccion-titulo .barra { width: 18px; height: 4px; background: #1D63ED; border-radius: 2px; display: inline-block; }
+  /* SECCIONES (H2) */
+  .seccion { padding: 22px 44px 0 44px; }
+  .seccion-titulo { font-weight: 700; font-size: 19px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin-bottom: 14px; letter-spacing: -0.01em; }
+  .seccion-titulo .barra { width: 16px; height: 4px; background: var(--accent); border-radius: 2px; display: inline-block; }
 
+  /* CLIMA CARDS */
   .clima-fila { display: flex; gap: 14px; }
-  .clima-card { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #0F172A; }
-  .clima-card .desc { font-size: 12.5px; color: #64748B; margin-top: 2px; font-weight: 500; }
-  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
-  .clima-card .temp { font-size: 40px; font-weight: 800; color: #1D63ED; line-height: 0.9; letter-spacing: -1px; }
-  .clima-card .minmax { font-size: 12px; color: #64748B; font-weight: 500; }
-  .clima-card .viento { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
+  .clima-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 16px; color: var(--text-primary); }
+  .clima-card .desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
+  .clima-card .temp { font-size: 38px; font-weight: 800; color: var(--accent); line-height: 0.9; letter-spacing: -0.03em; }
+  .clima-card .minmax { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; }
+  .clima-card .viento { font-size: 12.5px; color: var(--text-primary); font-weight: 600; margin-top: 3px; }
 
-  /* GAUGE HELADAS */
-  .gauge-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 35px 26px; }
-  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 15px; color: #DC2626; letter-spacing: -0.2px; }
-  .gauge-nota { font-size: 11.5px; color: #64748B; font-weight: 500; }
-  .gauge-track { position: relative; height: 6px; background: #E2E8F0; border-radius: 3px; }
+  /* HELADAS GAUGE */
+  .gauge-box { margin-top: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px 24px 24px 24px; }
+  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; }
+  .gauge-titulo { font-weight: 700; font-size: 15px; color: #DC2626; }
+  .gauge-nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .gauge-track { position: relative; height: 6px; background: #CBD5E1; border-radius: 3px; }
   .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #FCA5A5; border-radius: 3px 0 0 3px; }
   .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #475569; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #334155; background: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--text-primary); background: #FFFFFF; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); }
   
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #1D63ED; border: 3px solid #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); border: 3px solid #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .gauge-punto.alerta .bola { background: #DC2626; }
-  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 10.5px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); background: #FFFFFF; color: #0F172A; border: 1px solid #E2E8F0; }
+  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 11px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06); background: #FFFFFF; color: var(--text-primary); border: 1px solid var(--border-color); }
   .gauge-punto.pos-abajo .etiqueta { top: 25px; }
   .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
   .gauge-punto .etiqueta b { font-weight: 700; }
   .gauge-punto.alerta .etiqueta b { color: #DC2626; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #64748B; font-weight: 500; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 32px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
   /* FASE LUNAR */
-  .lunar-bar { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-top: 16px; }
-  .lunar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 700; margin-bottom: 10px; text-align: center; }
+  .lunar-bar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
+  .lunar-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px; text-align: center; }
   .lunar-days { display: flex; justify-content: space-around; align-items: center; }
-  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #64748B; font-weight: 500; }
-  .lunar-day.today { color: #1D63ED; font-weight: 700; transform: scale(1.1); }
+  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+  .lunar-day.today { color: var(--accent); font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-  /* NOTICIAS (10 CATEGORÍAS EN 2 COLUMNAS CON BAJADAS) */
-  .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
+  /* NOTICIAS */
+  .noticias-cols { display: flex; gap: 20px; margin-top: 4px; }
   .col { flex: 1; }
   .subgrupo { margin-bottom: 12px; }
-  .subgrupo-titulo { display: inline-block; font-size: 10.5px; font-weight: 700; color: #1D63ED; text-transform: uppercase; letter-spacing: 0.8px; background: #EBF3FE; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
-  .noticia { font-size: 12px; line-height: 1.35; margin-bottom: 8px; padding: 8px 10px; background: #F8FAFC; border-left: 3px solid #1D63ED; border-radius: 0 8px 8px 0; border-top: 1px solid #E2E8F0; border-right: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0; }
-  .noticia .titulo-n { color: #1E293B; font-weight: 600; font-size: 12px; letter-spacing: -0.1px; }
-  .noticia .bajada-n { color: #475569; font-size: 11px; margin-top: 2px; font-weight: 400; line-height: 1.3; }
-  .noticia .fuente-n { color: #64748B; font-size: 10px; margin-top: 3px; font-weight: 500; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--accent-bg); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; }
+  .noticia { font-size: 13.5px; line-height: 1.45; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+  .noticia .titulo-n { color: var(--text-primary); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
+  .noticia .bajada-n { color: var(--text-secondary); font-size: 12px; margin-top: 3px; font-weight: 400; line-height: 1.4; }
+  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 4px; font-weight: 500; }
 
-  /* TABLA FÚTBOL (TEMA CLARO) */
-  .futbol-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px 16px; }
-  .futbol-titulo { font-size: 13px; font-weight: 700; color: #1E293B; }
-  .futbol-subtitulo { font-size: 11px; color: #64748B; font-weight: 500; }
+  /* TABLA FÚTBOL */
+  .futbol-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
+  .futbol-titulo { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .futbol-subtitulo { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .futbol-tabla { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .futbol-tabla th { font-size: 9px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; padding: 0 0 5px 0; text-align: center; }
+  .futbol-tabla th { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; padding: 0 0 6px 0; text-align: center; }
   .futbol-tabla th.izq { text-align: left; }
-  .futbol-tabla td { padding: 5px 0; font-size: 11px; color: #475569; border-top: 1px solid #E2E8F0; text-align: center; }
-  .futbol-pos { font-weight: 700; color: #64748B; text-align: left !important; }
+  .futbol-tabla td { padding: 6px 0; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--border-color); text-align: center; }
+  .futbol-pos { font-weight: 700; color: var(--text-muted); text-align: left !important; }
   .futbol-escudo { width: 18px; height: 18px; object-fit: contain; }
-  .futbol-equipo { font-size: 12px; font-weight: 500; color: #1E293B; text-align: left !important; }
-  .futbol-pts { font-size: 12px; font-weight: 800; color: #1D63ED; }
+  .futbol-equipo { font-size: 12.5px; font-weight: 600; color: var(--text-primary); text-align: left !important; }
+  .futbol-pts { font-size: 12.5px; font-weight: 800; color: var(--accent); }
   .futbol-dg-pos { color: #16A34A; font-weight: 600; }
-  .futbol-dg-neg { color: #E24B4A; font-weight: 600; }
-  .futbol-destacado { background: rgba(29,99,237,0.06); }
-  .futbol-destacado .futbol-pos { border-left: 3px solid #1D63ED; padding-left: 6px; color: #1D63ED; }
+  .futbol-dg-neg { color: #DC2626; font-weight: 600; }
+  .futbol-destacado { background: rgba(29, 99, 237, 0.06); }
+  .futbol-destacado .futbol-pos { border-left: 3px solid var(--accent); padding-left: 6px; color: var(--accent); }
 
   /* COMBUSTIBLES */
-  .combustible-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px 22px; }
-  .combustible-titulo { color: #0F172A; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #64748B; font-weight: 500; }
-  .precios-fila { display: flex; gap: 12px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
-  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; }
-  .precio-card .monto { font-size: 22px; color: #0F172A; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
-  .precio-card .ciudad-p { font-size: 11px; color: #1E293B; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 9.5px; color: #64748B; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+  .combustible-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 20px; }
+  .combustible-titulo { color: var(--text-primary); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 12px; }
+  .precio-card { flex: 1; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 4px; }
+  .precio-card .monto { font-size: 20px; color: var(--text-primary); font-weight: 800; margin-top: 2px; letter-spacing: -0.02em; }
+  .precio-card .ciudad-p { font-size: 11.5px; color: var(--text-primary); font-weight: 600; margin-top: 3px; }
+  .precio-card .direccion-p { font-size: 10px; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  /* EXTRA / FOOTER */
-  .footer-boxes { display: flex; gap: 14px; margin-top: 16px; }
-  .footer-box { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #1D63ED; padding: 12px 14px; border-radius: 0 10px 10px 0; }
-  .footer-box-title { font-size: 11px; font-weight: 700; color: #64748B; margin-bottom: 4px; text-transform: uppercase; }
-  .footer-box-text { font-size: 12px; color: #1E293B; font-style: italic; line-height: 1.4; }
+  /* FOOTER & EXTRAS */
+  .footer-boxes { display: flex; gap: 14px; margin-top: 14px; }
+  .footer-box { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 10px 10px 0; }
+  .footer-box-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .footer-box-text { font-size: 12.5px; color: var(--text-primary); font-style: italic; line-height: 1.45; }
 
-  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; font-size: 11px; color: #64748B; font-weight: 500; }
+  .footer { margin: 24px 44px 0 44px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
 """
 
 CSS_NOCHE = """
   @import url('https://rsms.me/inter/inter.css');
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #F1F5F9; background: #0F172A; width: 794px; -webkit-font-smoothing: antialiased; }
-  .pagina { padding: 0 0 32px 0; background: #0F172A; }
+
+  :root {
+    --bg-page: #0F172A;
+    --bg-card: #1E293B;
+    --border-color: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+    --accent: #38BDF8;
+    --accent-bg: rgba(56, 189, 248, 0.12);
+  }
+
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+    color: var(--text-primary); 
+    background: var(--bg-page); 
+    width: 794px; 
+    -webkit-font-smoothing: antialiased; 
+    line-height: 1.48;
+  }
   
-  .masthead { padding: 40px 48px 22px 48px; }
+  .pagina { padding: 0 0 32px 0; background: var(--bg-page); }
+  
+  .masthead { padding: 36px 44px 20px 44px; }
   .masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .eyebrow { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; font-weight: 700; background: #1E293B; padding: 5px 12px; border-radius: 6px; border: 1px solid #334155; }
-  .titulo { font-weight: 800; font-size: 44px; color: #FFFFFF; letter-spacing: -1px; margin-top: 10px; }
-  .titulo .acento { color: #38BDF8; }
-  .fecha-box { text-align: right; color: #94A3B8; font-size: 13px; line-height: 1.5; }
-  .fecha-box .dia { font-size: 15px; color: #F8FAFC; font-weight: 600; }
-  .fecha-box .santoral { font-size: 12px; color: #38BDF8; font-weight: 500; margin-top: 2px; }
-  .masthead-rule { margin-top: 22px; height: 2px; background: #1E293B; position: relative; }
-  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100px; background: #38BDF8; }
-  .comunas { margin-top: 14px; color: #94A3B8; font-size: 13px; letter-spacing: 0.2px; }
-  .comunas b { color: #FFFFFF; font-weight: 600; }
+  .eyebrow { font-size: 11.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent); font-weight: 700; background: var(--bg-card); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); }
+  .titulo { font-weight: 800; font-size: 38px; color: var(--text-primary); letter-spacing: -0.02em; margin-top: 8px; line-height: 1.1; }
+  .titulo .acento { color: var(--accent); }
+  
+  .fecha-box { text-align: right; color: var(--text-secondary); font-size: 13.5px; line-height: 1.4; }
+  .fecha-box .dia { font-size: 15px; color: var(--text-primary); font-weight: 600; }
+  .fecha-box .santoral { font-size: 12.5px; color: var(--accent); font-weight: 500; margin-top: 2px; }
+  
+  .masthead-rule { margin-top: 18px; height: 2px; background: var(--border-color); position: relative; }
+  .masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: var(--accent); }
+  .comunas { margin-top: 12px; color: var(--text-secondary); font-size: 13.5px; letter-spacing: 0.1px; }
+  .comunas b { color: var(--text-primary); font-weight: 600; }
 
   /* METRICAS */
-  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1E293B; border: 1px solid #334155; padding: 12px; border-radius: 12px; margin: 16px 48px 0 48px; text-align: center; }
-  .metric-item { font-size: 11px; color: #94A3B8; font-weight: 500; }
-  .metric-value { font-weight: 700; font-size: 14px; color: #38BDF8; margin-top: 2px; }
+  .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin: 16px 44px 0 44px; text-align: center; }
+  .metric-item { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .metric-value { font-weight: 700; font-size: 15px; color: var(--accent); margin-top: 3px; }
 
   /* FERIADO */
-  .holiday-box { margin: 16px 48px 0 48px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
-  .holiday-title { font-size: 11px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.5px; }
-  .holiday-desc { font-size: 13px; font-weight: 700; color: #F8FAFC; margin-top: 2px; }
-  .holiday-badge { background: #38BDF8; color: #0F172A; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 20px; }
+  .holiday-box { margin: 16px 44px 0 44px; background: var(--accent-bg); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+  .holiday-title { font-size: 11.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+  .holiday-desc { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+  .holiday-badge { background: var(--accent); color: #0F172A; font-weight: 700; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
 
-  .seccion { padding: 24px 48px 0 48px; }
-  .seccion-titulo { font-weight: 700; font-size: 20px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; letter-spacing: -0.3px; }
-  .seccion-titulo .barra { width: 18px; height: 4px; background: #38BDF8; border-radius: 2px; display: inline-block; }
+  /* SECCIONES */
+  .seccion { padding: 22px 44px 0 44px; }
+  .seccion-titulo { font-weight: 700; font-size: 19px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin-bottom: 14px; letter-spacing: -0.01em; }
+  .seccion-titulo .barra { width: 16px; height: 4px; background: var(--accent); border-radius: 2px; display: inline-block; }
 
+  /* CLIMA CARDS */
   .clima-fila { display: flex; gap: 14px; }
-  .clima-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; }
-  .clima-card .ciudad { font-weight: 700; font-size: 17px; color: #FFFFFF; }
-  .clima-card .desc { font-size: 12.5px; color: #94A3B8; margin-top: 2px; font-weight: 500; }
-  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; }
-  .clima-card .temp { font-size: 40px; font-weight: 800; color: #38BDF8; line-height: 0.9; letter-spacing: -1px; }
-  .clima-card .minmax { font-size: 12px; color: #94A3B8; font-weight: 500; }
-  .clima-card .viento { font-size: 12px; color: #CBD5E1; font-weight: 600; margin-top: 4px; }
+  .clima-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+  .clima-card .ciudad { font-weight: 700; font-size: 16px; color: var(--text-primary); }
+  .clima-card .desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
+  .clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; }
+  .clima-card .temp { font-size: 38px; font-weight: 800; color: var(--accent); line-height: 0.9; letter-spacing: -0.03em; }
+  .clima-card .minmax { font-size: 12.5px; color: var(--text-secondary); font-weight: 500; }
+  .clima-card .viento { font-size: 12.5px; color: var(--text-primary); font-weight: 600; margin-top: 3px; }
 
-  /* GAUGE HELADAS */
-  .gauge-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 35px 26px; }
-  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 30px; }
-  .gauge-titulo { font-weight: 700; font-size: 15px; color: #F87171; letter-spacing: -0.2px; }
-  .gauge-nota { font-size: 11.5px; color: #94A3B8; font-weight: 500; }
+  /* HELADAS GAUGE */
+  .gauge-box { margin-top: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px 24px 24px 24px; }
+  .gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; }
+  .gauge-titulo { font-weight: 700; font-size: 15px; color: #F87171; }
+  .gauge-nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .gauge-track { position: relative; height: 6px; background: #334155; border-radius: 3px; }
   .gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #991B1B; border-radius: 3px 0 0 3px; }
   .gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #94A3B8; }
-  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: #FFFFFF; background: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid #334155; }
+  .gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--text-primary); background: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); }
   
   .gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
-  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: #38BDF8; border: 3px solid #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); border: 3px solid #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
   .gauge-punto.alerta .bola { background: #F87171; }
-  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 10.5px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #0F172A; color: #F1F5F9; border: 1px solid #334155; }
+  .gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 11px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #0F172A; color: var(--text-primary); border: 1px solid var(--border-color); }
   .gauge-punto.pos-abajo .etiqueta { top: 25px; }
   .gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
   .gauge-punto .etiqueta b { font-weight: 700; }
   .gauge-punto.alerta .etiqueta b { color: #F87171; }
-  .gauge-escala { display: flex; justify-content: space-between; margin-top: 35px; font-size: 10.5px; color: #94A3B8; font-weight: 500; }
+  .gauge-escala { display: flex; justify-content: space-between; margin-top: 32px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
   /* FASE LUNAR */
-  .lunar-bar { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px; margin-top: 16px; }
-  .lunar-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94A3B8; font-weight: 700; margin-bottom: 10px; text-align: center; }
+  .lunar-bar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
+  .lunar-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px; text-align: center; }
   .lunar-days { display: flex; justify-content: space-around; align-items: center; }
-  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #94A3B8; font-weight: 500; }
-  .lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.1); }
+  .lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+  .lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-  /* NOTICIAS (10 CATEGORÍAS EN 2 COLUMNAS CON BAJADAS) */
-  .noticias-cols { display: flex; gap: 24px; margin-top: 4px; }
+  /* NOTICIAS */
+  .noticias-cols { display: flex; gap: 20px; margin-top: 4px; }
   .col { flex: 1; }
   .subgrupo { margin-bottom: 12px; }
-  .subgrupo-titulo { display: inline-block; font-size: 10.5px; font-weight: 700; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.8px; background: #1E293B; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; border: 1px solid #334155; }
-  .noticia { font-size: 12px; line-height: 1.35; margin-bottom: 8px; padding: 8px 10px; background: #1E293B; border-left: 3px solid #38BDF8; border-radius: 0 8px 8px 0; border-top: 1px solid #2B394A; border-right: 1px solid #2B394A; border-bottom: 1px solid #2B394A; }
-  .noticia .titulo-n { color: #F8FAFC; font-weight: 500; font-size: 12px; letter-spacing: -0.1px; }
-  .noticia .bajada-n { color: #94A3B8; font-size: 11px; margin-top: 2px; font-weight: 400; line-height: 1.3; }
-  .noticia .fuente-n { color: #94A3B8; font-size: 10px; margin-top: 3px; font-weight: 500; }
+  .subgrupo-titulo { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; background: var(--bg-card); padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; border: 1px solid var(--border-color); }
+  .noticia { font-size: 13.5px; line-height: 1.45; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; border-top: 1px solid #2B394A; border-right: 1px solid #2B394A; border-bottom: 1px solid #2B394A; }
+  .noticia .titulo-n { color: var(--text-primary); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
+  .noticia .bajada-n { color: var(--text-secondary); font-size: 12px; margin-top: 3px; font-weight: 400; line-height: 1.4; }
+  .noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 4px; font-weight: 500; }
 
-  /* TABLA FÚTBOL (TEMA OSCURO) */
-  .futbol-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 14px 16px; }
-  .futbol-titulo { font-size: 13px; font-weight: 700; color: #F8FAFC; }
-  .futbol-subtitulo { font-size: 11px; color: #94A3B8; font-weight: 500; }
+  /* TABLA FÚTBOL */
+  .futbol-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; }
+  .futbol-titulo { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .futbol-subtitulo { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .futbol-tabla { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .futbol-tabla th { font-size: 9px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; padding: 0 0 5px 0; text-align: center; }
+  .futbol-tabla th { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; padding: 0 0 6px 0; text-align: center; }
   .futbol-tabla th.izq { text-align: left; }
-  .futbol-tabla td { padding: 5px 0; font-size: 11px; color: #CBD5E1; border-top: 1px solid #334155; text-align: center; }
-  .futbol-pos { font-weight: 700; color: #94A3B8; text-align: left !important; }
+  .futbol-tabla td { padding: 6px 0; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--border-color); text-align: center; }
+  .futbol-pos { font-weight: 700; color: var(--text-muted); text-align: left !important; }
   .futbol-escudo { width: 18px; height: 18px; object-fit: contain; }
-  .futbol-equipo { font-size: 12px; font-weight: 500; color: #F8FAFC; text-align: left !important; }
-  .futbol-pts { font-size: 12px; font-weight: 800; color: #38BDF8; }
+  .futbol-equipo { font-size: 12.5px; font-weight: 600; color: var(--text-primary); text-align: left !important; }
+  .futbol-pts { font-size: 12.5px; font-weight: 800; color: var(--accent); }
   .futbol-dg-pos { color: #4ADE80; font-weight: 600; }
   .futbol-dg-neg { color: #F87171; font-weight: 600; }
-  .futbol-destacado { background: rgba(56,189,248,0.08); }
-  .futbol-destacado .futbol-pos { border-left: 3px solid #38BDF8; padding-left: 6px; color: #38BDF8; }
+  .futbol-destacado { background: rgba(56, 189, 248, 0.08); }
+  .futbol-destacado .futbol-pos { border-left: 3px solid var(--accent); padding-left: 6px; color: var(--accent); }
 
   /* COMBUSTIBLES */
-  .combustible-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 20px 22px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 500; }
-  .precios-fila { display: flex; gap: 12px; margin-top: 14px; }
-  .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; }
-  .precio-card .monto { font-size: 22px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
-  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+  .combustible-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 20px; }
+  .combustible-titulo { color: var(--text-primary); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 12px; }
+  .precio-card { flex: 1; background: #0F172A; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 4px; }
+  .precio-card .monto { font-size: 20px; color: var(--text-primary); font-weight: 800; margin-top: 2px; letter-spacing: -0.02em; }
+  .precio-card .ciudad-p { font-size: 11.5px; color: var(--text-primary); font-weight: 600; margin-top: 3px; }
+  .precio-card .direccion-p { font-size: 10px; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
-  /* EXTRA / FOOTER */
-  .footer-boxes { display: flex; gap: 14px; margin-top: 16px; }
-  .footer-box { flex: 1; background: #1E293B; border: 1px solid #334155; border-left: 4px solid #38BDF8; padding: 12px 14px; border-radius: 0 10px 10px 0; }
-  .footer-box-title { font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 4px; text-transform: uppercase; }
-  .footer-box-text { font-size: 12px; color: #F8FAFC; font-style: italic; line-height: 1.4; }
+  /* FOOTER & EXTRAS */
+  .footer-boxes { display: flex; gap: 14px; margin-top: 14px; }
+  .footer-box { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 10px 10px 0; }
+  .footer-box-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .footer-box-text { font-size: 12.5px; color: var(--text-primary); font-style: italic; line-height: 1.45; }
 
-  .footer { margin: 28px 48px 0 48px; padding-top: 16px; border-top: 1px solid #1E293B; display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; font-weight: 500; }
+  .footer { margin: 24px 44px 0 44px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
 """
 
 # ==========================================
