@@ -1,7 +1,7 @@
 """
 Boletín automático en UNA SOLA IMAGEN PNG (Diseño Dinámico: Mañana / Noche)
 Combina indicadores económicos, clima, heladas, feriados, fase lunar, 
-combustibles con badges de colores, noticias locales/nacionales, tabla de fútbol y frases/datos del Maule.
+combustibles con badges de colores integrados, noticias locales/nacionales, tabla de fútbol y frases/datos del Maule.
 """
 
 import os
@@ -176,7 +176,6 @@ def obtener_tabla_futbol(top_n=10):
         )
     }
     try:
-        # 1. Obtener logos actualizados de los equipos
         url_teams = "https://site.api.espn.com/apis/site/v2/sports/soccer/chi.1/teams"
         r_teams = HTTP_SESSION.get(url_teams, headers=headers, timeout=10)
         logos = {}
@@ -187,7 +186,6 @@ def obtener_tabla_futbol(top_n=10):
                 if equipo.get("logos"):
                     logos[equipo["id"]] = equipo["logos"][0]["href"]
 
-        # 2. Consulta con parámetro explícito de ordenamiento por posición oficial
         url_standings = "https://site.api.espn.com/apis/v2/sports/soccer/chi.1/standings?sort=rank%3Aasc"
         r = HTTP_SESSION.get(url_standings, headers=headers, timeout=10)
         if not r.ok:
@@ -225,10 +223,8 @@ def obtener_tabla_futbol(top_n=10):
                 "pts": int(stats.get("points", 0)),
             })
 
-        # Ordenamiento riguroso: Posición -> Puntos desc -> Diferencia de gol desc
         tabla.sort(key=lambda x: (x["posicion"] if x["posicion"] > 0 else 99, -x["pts"], -x["dg"]))
         
-        # Normalizar numeración de la tabla (1 a N)
         for idx, item in enumerate(tabla, start=1):
             item["posicion"] = idx
 
@@ -363,11 +359,13 @@ def adaptar_direccion(estacion, ubicacion):
     if not dir_raw or dir_raw.lower() in ["none", "null"]:
         dir_raw = estacion.get("nombre_fantasia") or estacion.get("razon_social") or "Sin dirección"
 
-    dir_raw = dir_raw.replace("Avenida", "Av.").replace("AVENIDA", "Av.")
-    dir_raw = dir_raw.replace("Panamericana", "Panam.").replace("PANAMERICANA", "Panam.")
+    # Abreviaciones
+    dir_raw = re.sub(r'(?i)\bAvenida\b', 'Av.', dir_raw)
+    dir_raw = re.sub(r'(?i)\bPanamericana\b', 'Panam.', dir_raw)
 
+    # Recorte elegante sin triple punto repetido
     if len(dir_raw) > 22:
-        dir_raw = dir_raw[:20].strip() + "..."
+        dir_raw = dir_raw[:21].rstrip(". ") + "…"
 
     return dir_raw
 
@@ -553,16 +551,16 @@ CSS_MANANA = """
   .futbol-destacado { background: rgba(29,99,237,0.06); }
   .futbol-destacado .futbol-pos { border-left: 3px solid #1D63ED; padding-left: 6px; color: #1D63ED; }
 
-  /* COMBUSTIBLES */
-  .combustible-box { margin-top: 10px; background: #0F172A; border-radius: 12px; padding: 22px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
-  .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
-  .precio-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
-  .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
-  .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+  /* COMBUSTIBLES (MAÑANA - INTEGRADO Y EN ARMONÍA) */
+  .combustible-box { margin-top: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px 22px; }
+  .combustible-titulo { color: #0F172A; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11px; color: #64748B; font-weight: 500; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 14px; }
+  .precio-card { flex: 1; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; }
+  .precio-card .monto { font-size: 22px; color: #0F172A; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  .precio-card .ciudad-p { font-size: 11px; color: #1E293B; font-weight: 600; margin-top: 4px; }
+  .precio-card .direccion-p { font-size: 9.5px; color: #64748B; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
   /* EXTRA / FOOTER */
   .footer-boxes { display: flex; gap: 14px; margin-top: 16px; }
@@ -669,14 +667,14 @@ CSS_NOCHE = """
   .futbol-destacado { background: rgba(56,189,248,0.08); }
   .futbol-destacado .futbol-pos { border-left: 3px solid #38BDF8; padding-left: 6px; color: #38BDF8; }
 
-  /* COMBUSTIBLES */
-  .combustible-box { margin-top: 10px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 22px 26px; }
-  .combustible-titulo { color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
-  .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
-  .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px; }
-  .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
+  /* COMBUSTIBLES (NOCHE - INTEGRADO Y EN ARMONÍA) */
+  .combustible-box { margin-top: 16px; background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 20px 22px; }
+  .combustible-titulo { color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 500; }
+  .precios-fila { display: flex; gap: 12px; margin-top: 14px; }
+  .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; margin-bottom: 6px; }
+  .precio-card .monto { font-size: 22px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
   .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
   .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
 
