@@ -1074,7 +1074,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
 # ENVÍO A TELEGRAM (SIN COMPRESIÓN)
 # ==========================================
 
-def enviar_foto_telegram(imagen_bytes, caption_text=""):
+def enviar_foto_telegram(imagen_bytes, caption_text="", nombre_archivo="boletin.jpg"):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID.", file=sys.stderr)
         return
@@ -1085,17 +1085,18 @@ def enviar_foto_telegram(imagen_bytes, caption_text=""):
         "chat_id": TELEGRAM_CHAT_ID,
         "caption": caption_text
     }
-    files = {"document": ("boletin.jpg", imagen_bytes, "image/jpeg")}
+    
+    # Aquí pasamos 'nombre_archivo' en lugar de dejar fijo "boletin.jpg"
+    files = {"document": (nombre_archivo, imagen_bytes, "image/jpeg")}
 
     try:
         resp = HTTP_SESSION.post(url, data=payload, files=files, timeout=60)
         resp.raise_for_status()
-        print("Boletín enviado con éxito a Telegram.")
+        print(f"Boletín '{nombre_archivo}' enviado con éxito a Telegram.")
     except requests.exceptions.ReadTimeout:
         print("ERROR: Timeout leyendo la respuesta de Telegram tras varios reintentos.", file=sys.stderr)
     except requests.exceptions.RequestException as e:
         print(f"ERROR al enviar a Telegram: {e}", file=sys.stderr)
-
 # ==========================================
 # EJECUCIÓN PRINCIPAL
 # ==========================================
@@ -1178,9 +1179,12 @@ async def main_async():
         f"📍 Longaví · Linares · Yerbas Buenas"
     )
 
-    # 8. Enviar a Telegram
-    print("📤 Enviando documento HD a Telegram...")
-    enviar_foto_telegram(imagen_bytes, caption_text=caption)
+# 8. Enviar a Telegram
+    tipo_edicion = "Manana" if es_manana else "Noche"
+    nombre_dinamico = f"Boletin_Maule_{fecha_reporte.strftime('%Y-%m-%d')}_{tipo_edicion}.jpg"
+
+    print(f"📤 Enviando documento HD ({nombre_dinamico}) a Telegram...")
+    enviar_foto_telegram(imagen_bytes, caption_text=caption, nombre_archivo=nombre_dinamico)
 
 def main():
     asyncio.run(main_async())
