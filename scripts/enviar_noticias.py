@@ -122,14 +122,11 @@ def adaptar_direccion(estacion, ubicacion):
             dir_raw = f"{dir_raw} #{num_raw}"
 
     if not dir_raw or dir_raw.lower() in ["none", "null"]:
-        # Intenta usar la razón social o nombre comercial si no hay dirección
         dir_raw = estacion.get("nombre_fantasia") or estacion.get("razon_social") or "Sin dirección"
 
-    # Acortar prefijos comunes para optimizar el espacio visual
     dir_raw = dir_raw.replace("Avenida", "Av.").replace("AVENIDA", "Av.")
     dir_raw = dir_raw.replace("Panamericana", "Panam.").replace("PANAMERICANA", "Panam.")
 
-    # Truncar si la dirección es demasiado larga para la tarjeta
     if len(dir_raw) > 22:
         dir_raw = dir_raw[:20].strip() + "..."
 
@@ -150,7 +147,6 @@ def mejores_precios_combustible():
     for est in estaciones:
         ubic = est.get("ubicacion") or {}
         
-        # Extraer nombre de la comuna
         comuna_raw = ubic.get("comuna")
         if isinstance(comuna_raw, dict):
             comuna = comuna_raw.get("nombre") or comuna_raw.get("nom_comuna") or "Maule"
@@ -159,7 +155,6 @@ def mejores_precios_combustible():
         else:
             comuna = "Maule"
 
-        # Formatear la dirección adaptada
         direccion_str = adaptar_direccion(est, ubic)
 
         try:
@@ -591,6 +586,8 @@ async def main_async():
         return
 
     es_manana = ahora.hour < 15
+    # En la mañana muestra el día de hoy (index 0). En la noche proyecta el día de mañana (index 1).
+    idx_dia = 0 if es_manana else 1
 
     # 1. Clima
     datos_clima = {}
@@ -598,13 +595,14 @@ async def main_async():
         raw = obtener_clima(coords["lat"], coords["lon"])
         curr = raw["current"]
         daily = raw["daily"]
+        
         datos_clima[ciudad] = {
             "temp": round(curr["temperature_2m"]),
-            "min": round(daily["temperature_2m_min"][0]),
-            "max": round(daily["temperature_2m_max"][0]),
+            "min": round(daily["temperature_2m_min"][idx_dia]),
+            "max": round(daily["temperature_2m_max"][idx_dia]),
             "viento": round(curr["wind_speed_10m"]),
             "desc": WMO_CODES.get(curr["weather_code"], "—"),
-            "tmin_madrugada": round(daily["temperature_2m_min"][1], 1) if len(daily["temperature_2m_min"]) > 1 else round(daily["temperature_2m_min"][0], 1)
+            "tmin_madrugada": round(daily["temperature_2m_min"][idx_dia], 1)
         }
 
     # 2. Noticias
