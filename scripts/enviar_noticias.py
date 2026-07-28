@@ -1,7 +1,7 @@
 """
 Boletín automático en UNA SOLA IMAGEN PNG (Diseño Dinámico: Mañana / Noche)
 Combina indicadores económicos, clima, heladas, feriados, fase lunar, 
-combustibles, noticias locales/nacionales, tabla de fútbol y frases/datos del Maule.
+combustibles con badges de colores, noticias locales/nacionales, tabla de fútbol y frases/datos del Maule.
 """
 
 import os
@@ -160,16 +160,23 @@ def obtener_santoral_y_frase(ahora):
     return {"santoral": santoral, "frase": frase, "autor": autor, "dato": dato}
 
 # ==========================================
-# FÚTBOL (ESPN API)
+# FÚTBOL (ESPN API - ORDEN CORREGIDO)
 # ==========================================
 
 def obtener_tabla_futbol(top_n=10):
-    """Obtiene la tabla del Campeonato Nacional (con logos) desde la API pública de ESPN"""
+    """
+    Obtiene la tabla de posiciones oficial del Campeonato Nacional desde ESPN,
+    forzando el orden oficial (rank) y aplicando criterios secundarios de desempate.
+    """
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        )
     }
     try:
-        # 1. Obtener logos de equipos
+        # 1. Obtener logos actualizados de los equipos
         url_teams = "https://site.api.espn.com/apis/site/v2/sports/soccer/chi.1/teams"
         r_teams = HTTP_SESSION.get(url_teams, headers=headers, timeout=10)
         logos = {}
@@ -180,24 +187,36 @@ def obtener_tabla_futbol(top_n=10):
                 if equipo.get("logos"):
                     logos[equipo["id"]] = equipo["logos"][0]["href"]
 
-        # 2. Obtener tabla de posiciones
-        url_standings = "https://site.api.espn.com/apis/v2/sports/soccer/chi.1/standings"
+        # 2. Consulta con parámetro explícito de ordenamiento por posición oficial
+        url_standings = "https://site.api.espn.com/apis/v2/sports/soccer/chi.1/standings?sort=rank%3Aasc"
         r = HTTP_SESSION.get(url_standings, headers=headers, timeout=10)
         if not r.ok:
             print(f"⚠️ Error ESPN API Standings: Status {r.status_code}")
             return []
 
         data = r.json()
-        entradas = data.get("children", [{}])[0].get("standings", {}).get("entries", [])
+        children = data.get("children", [])
+        if not children:
+            return []
+            
+        entradas = children[0].get("standings", {}).get("entries", [])
 
         tabla = []
         for e in entradas:
             stats = {s["name"]: s.get("value", 0) for s in e.get("stats", [])}
-            team_id = e.get("team", {}).get("id", "")
+            team_info = e.get("team", {})
+            team_id = team_info.get("id", "")
+            
+            nombre_equipo = (
+                team_info.get("shortDisplayName") 
+                or team_info.get("displayName") 
+                or "Equipo"
+            )
+
             tabla.append({
-                "posicion": int(stats.get("rank", 0)),
-                "equipo": e.get("team", {}).get("shortDisplayName", e.get("team", {}).get("displayName", "Equipo")),
-                "logo": logos.get(team_id, ""),
+                "posicion": int(stats.get("rank", stats.get("position", 0))),
+                "equipo": nombre_equipo,
+                "logo": logos.get(team_id, team_info.get("logos", [{}])[0].get("href", "")),
                 "pj": int(stats.get("gamesPlayed", 0)),
                 "g": int(stats.get("wins", 0)),
                 "e": int(stats.get("ties", 0)),
@@ -205,8 +224,16 @@ def obtener_tabla_futbol(top_n=10):
                 "dg": int(stats.get("pointDifferential", 0)),
                 "pts": int(stats.get("points", 0)),
             })
-        tabla.sort(key=lambda x: x["posicion"])
+
+        # Ordenamiento riguroso: Posición -> Puntos desc -> Diferencia de gol desc
+        tabla.sort(key=lambda x: (x["posicion"] if x["posicion"] > 0 else 99, -x["pts"], -x["dg"]))
+        
+        # Normalizar numeración de la tabla (1 a N)
+        for idx, item in enumerate(tabla, start=1):
+            item["posicion"] = idx
+
         return tabla[:top_n]
+
     except Exception as err:
         print(f"⚠️ Excepción al obtener tabla de fútbol: {err}")
         return []
@@ -343,6 +370,13 @@ def adaptar_direccion(estacion, ubicacion):
         dir_raw = dir_raw[:20].strip() + "..."
 
     return dir_raw
+
+ESTILOS_COMBUSTIBLE = {
+    "93": {"etiqueta": "93", "bg": "#00a896", "text": "#ffffff", "border": "#028090"},
+    "95": {"etiqueta": "95", "bg": "#e63946", "text": "#ffffff", "border": "#d62828"},
+    "97": {"etiqueta": "97", "bg": "#0077b6", "text": "#ffffff", "border": "#023e8a"},
+    "Diésel": {"etiqueta": "Diésel", "bg": "#2b2d42", "text": "#ffffff", "border": "#14213d"}
+}
 
 def mejores_precios_combustible():
     estaciones = obtener_estaciones_cne()
@@ -525,7 +559,7 @@ CSS_MANANA = """
   .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
   .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
   .precio-card { flex: 1; background: #1E293B; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px; }
   .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
   .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
   .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
@@ -641,7 +675,7 @@ CSS_NOCHE = """
   .combustible-titulo span.nota { font-size: 11px; color: #94A3B8; font-weight: 400; }
   .precios-fila { display: flex; gap: 12px; margin-top: 16px; }
   .precio-card { flex: 1; background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 12px 8px; text-align: center; }
-  .precio-card .tipo { font-size: 11px; color: #38BDF8; font-weight: 700; letter-spacing: 1px; }
+  .precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px; }
   .precio-card .monto { font-size: 21px; color: #FFFFFF; font-weight: 800; margin-top: 2px; letter-spacing: -0.5px; }
   .precio-card .ciudad-p { font-size: 11px; color: #F1F5F9; font-weight: 600; margin-top: 4px; }
   .precio-card .direccion-p { font-size: 9.5px; color: #94A3B8; margin-top: 3px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
@@ -768,6 +802,20 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
     noticias_col1 = gen_subgrupo("Longaví", datos_noticias["Longaví"]) + gen_subgrupo("Linares", datos_noticias["Linares"]) + gen_subgrupo("Yerbas Buenas", datos_noticias["Yerbas Buenas"])
     noticias_col2 = gen_subgrupo("Chile", datos_noticias["Chile"]) + gen_subgrupo("Mundo", datos_noticias["Mundo"]) + gen_subgrupo("Tecnología", datos_noticias["Tecnología"])
 
+    # Combustibles HTML
+    combustibles_cards_html = ""
+    for clave, config in ESTILOS_COMBUSTIBLE.items():
+        info = datos_combustible.get(clave, {"monto": "—", "ciudad": "—", "direccion": "—"})
+        combustibles_cards_html += f"""
+        <div class="precio-card">
+          <div class="precio-badge" style="background-color:{config['bg']}; color:{config['text']}; border:1px solid {config['border']};">
+            {config['etiqueta']}
+          </div>
+          <div class="monto">{info['monto']}</div>
+          <div class="ciudad-p">{info['ciudad']}</div>
+          <div class="direccion-p">{html.escape(info['direccion'])}</div>
+        </div>"""
+
     return f"""<!DOCTYPE html>
 <html lang="es-CL">
 <head>
@@ -857,30 +905,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
     <div class="combustible-box">
       <div class="combustible-titulo">Combustible hoy <span class="nota">mejor precio en radio de 15 km</span></div>
       <div class="precios-fila">
-        <div class="precio-card">
-          <div class="tipo">93</div>
-          <div class="monto">{datos_combustible['93']['monto']}</div>
-          <div class="ciudad-p">{datos_combustible['93']['ciudad']}</div>
-          <div class="direccion-p">{html.escape(datos_combustible['93']['direccion'])}</div>
-        </div>
-        <div class="precio-card">
-          <div class="tipo">95</div>
-          <div class="monto">{datos_combustible['95']['monto']}</div>
-          <div class="ciudad-p">{datos_combustible['95']['ciudad']}</div>
-          <div class="direccion-p">{html.escape(datos_combustible['95']['direccion'])}</div>
-        </div>
-        <div class="precio-card">
-          <div class="tipo">97</div>
-          <div class="monto">{datos_combustible['97']['monto']}</div>
-          <div class="ciudad-p">{datos_combustible['97']['ciudad']}</div>
-          <div class="direccion-p">{html.escape(datos_combustible['97']['direccion'])}</div>
-        </div>
-        <div class="precio-card">
-          <div class="tipo">Diésel</div>
-          <div class="monto">{datos_combustible['Diésel']['monto']}</div>
-          <div class="ciudad-p">{datos_combustible['Diésel']['ciudad']}</div>
-          <div class="direccion-p">{html.escape(datos_combustible['Diésel']['direccion'])}</div>
-        </div>
+        {combustibles_cards_html}
       </div>
     </div>
 
