@@ -1,9 +1,5 @@
 requests>=2.31.0
+urllib3>=2.0.0
 feedparser>=6.0.10
-Pillow>=10.0.0
-python-dotenv>=1.0.0
-python-telegram-bot>=20.0
-requests
-feedparser
-Pillow
-playwright
+playwright>=1.40.0
+tzdata>=2023.3
