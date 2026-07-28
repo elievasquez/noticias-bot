@@ -160,13 +160,13 @@ def obtener_santoral_y_frase(ahora):
     return {"santoral": santoral, "frase": frase, "autor": autor, "dato": dato}
 
 # ==========================================
-# FÚTBOL (ESPN API - ORDEN CORREGIDO)[cite: 2]
+# FÚTBOL (ESPN API - ORDEN CORREGIDO)
 # ==========================================
 
 def obtener_tabla_futbol(top_n=10):
     """
     Obtiene la tabla de posiciones oficial del Campeonato Nacional desde ESPN,
-    forzando el orden oficial (rank) y aplicando criterios secundarios de desempate.[cite: 2]
+    forzando el orden oficial (rank) y aplicando criterios secundarios de desempate.
     """
     headers = {
         "User-Agent": (
@@ -291,10 +291,25 @@ def limpiar_titulo_noticia(titulo_raw):
         return partes[0].strip()
     return titulo_raw.strip()
 
-def limpiar_html(texto):
-    if not texto:
+def limpiar_bajada_rss(summary_raw, titulo):
+    """Limpia las etiquetas HTML, entidades especiales y espacios múltiples de las noticias."""
+    if not summary_raw:
         return ""
-    return re.sub(r'<.*?>', '', texto).strip()
+    
+    # Decodificar entidades HTML (&nbsp;, &amp;, etc.)[cite: 2]
+    texto = html.unescape(summary_raw)
+    
+    # Eliminar etiquetas HTML[cite: 2]
+    texto = re.sub(r'<[^>]+>', '', texto)
+    
+    # Limpiar espacios múltiples y saltos de línea[cite: 2]
+    texto = " ".join(texto.split()).strip()
+    
+    # Si la bajada es idéntica al título, se vacía para no duplicar[cite: 2]
+    if texto.lower() == titulo.lower():
+        return ""
+        
+    return texto
 
 def obtener_clima(lat, lon):
     url = "https://api.open-meteo.com/v1/forecast"
@@ -440,9 +455,9 @@ def buscar_noticias(query, n=1):
         fuente = e.source.title if hasattr(e, "source") and getattr(e.source, "title", None) else "Prensa"
         titulo_limpio = limpiar_titulo_noticia(e.title)
         summary_raw = getattr(e, "summary", "") or getattr(e, "description", "")
-        bajada = limpiar_html(summary_raw)
-        if len(bajada) > 110:
-            bajada = bajada[:107] + "…"
+        
+        # Limpieza completa sin recortar texto en Python[cite: 2]
+        bajada = limpiar_bajada_rss(summary_raw, titulo_limpio)
         res.append({"titulo": titulo_limpio, "bajada": bajada, "fuente": fuente})
     return res
 
@@ -454,9 +469,9 @@ def noticias_tema(tema, n=1):
         fuente = e.source.title if hasattr(e, "source") and getattr(e.source, "title", None) else "Noticias"
         titulo_limpio = limpiar_titulo_noticia(e.title)
         summary_raw = getattr(e, "summary", "") or getattr(e, "description", "")
-        bajada = limpiar_html(summary_raw)
-        if len(bajada) > 110:
-            bajada = bajada[:107] + "…"
+        
+        # Limpieza completa sin recortar texto en Python[cite: 2]
+        bajada = limpiar_bajada_rss(summary_raw, titulo_limpio)
         res.append({"titulo": titulo_limpio, "bajada": bajada, "fuente": fuente})
     return res
 
@@ -504,7 +519,7 @@ CSS_MANANA = """
   .comunas { margin-top: 12px; color: var(--text-secondary); font-size: 13.5px; letter-spacing: 0.1px; }
   .comunas b { color: var(--text-primary); font-weight: 600; }
 
-  /* METRICAS (H3 / Body) */
+  /* METRICAS */
   .metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin: 16px 44px 0 44px; text-align: center; }
   .metric-item { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
   .metric-value { font-weight: 700; font-size: 15px; color: var(--accent); margin-top: 3px; }
@@ -515,7 +530,7 @@ CSS_MANANA = """
   .holiday-desc { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
   .holiday-badge { background: var(--accent); color: #FFFFFF; font-weight: 700; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
 
-  /* SECCIONES (H2) */
+  /* SECCIONES */
   .seccion { padding: 22px 44px 0 44px; }
   .seccion-titulo { font-weight: 700; font-size: 19px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin-bottom: 14px; letter-spacing: -0.01em; }
   .seccion-titulo .barra { width: 16px; height: 4px; background: var(--accent); border-radius: 2px; display: inline-block; }
@@ -558,7 +573,7 @@ CSS_MANANA = """
   .lunar-day.today { color: var(--accent); font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-/* NOTICIAS OPTIMIZADAS (MAÑANA) */
+  /* NOTICIAS OPTIMIZADAS (MAÑANA) */
   .noticias-cols { display: flex; gap: 18px; margin-top: 4px; }
   .col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
   .subgrupo { margin-bottom: 0; }
@@ -577,7 +592,7 @@ CSS_MANANA = """
   }
   .noticia .titulo-n { color: var(--text-primary); font-weight: 700; font-size: 13.5px; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: 4px; }
   
-  /* Permite 3 líneas completas de bajada sin cortes raros */
+  /* Muestra hasta 3 líneas completas de bajada sin recortes bruscos */
   .noticia .bajada-n { 
     color: var(--text-secondary); 
     font-size: 12px; 
@@ -722,7 +737,7 @@ CSS_NOCHE = """
   .lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.05); }
   .lunar-icon { font-size: 18px; margin: 2px 0; }
 
-/* NOTICIAS OPTIMIZADAS (NOCHE) */
+  /* NOTICIAS OPTIMIZADAS (NOCHE) */
   .noticias-cols { display: flex; gap: 18px; margin-top: 4px; }
   .col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
   .subgrupo { margin-bottom: 0; }
@@ -741,7 +756,7 @@ CSS_NOCHE = """
   }
   .noticia .titulo-n { color: var(--text-primary); font-weight: 700; font-size: 13.5px; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: 4px; }
   
-  /* Permite 3 líneas completas de bajada sin cortes raros */
+  /* Muestra hasta 3 líneas completas de bajada sin recortes bruscos */
   .noticia .bajada-n { 
     color: var(--text-secondary); 
     font-size: 12px; 
@@ -891,7 +906,7 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
           <span>{d['nombre']}{today_label}</span>
         </div>"""
 
-    # Noticias en dos columnas (5 categorías por lado con bajada)
+    # Noticias en dos columnas (5 categorías por lado)
     def gen_subgrupo(titulo, lista_noticias):
         items = ""
         for n in lista_noticias:
@@ -1113,7 +1128,7 @@ async def main_async():
             "uv": uv_max
         }
 
-    # 3. Noticias (10 categorías en total)
+    # 3. Noticias (10 categorías)
     datos_noticias = {
         "Longaví": buscar_noticias('"Longaví" Chile', 1),
         "Linares": buscar_noticias('"Linares" Chile', 1),
@@ -1134,7 +1149,7 @@ async def main_async():
     tabla_futbol = obtener_tabla_futbol(top_n=10)
     html_futbol = renderizar_tabla_futbol(tabla_futbol)
 
-    # 6. Renderizado PNG e Imagen
+    # 6. Renderizado PNG
     print("🎨 Generando HTML y renderizando PNG con Playwright...")
     html_final = renderizar_plantilla_html(
         ahora, fecha_reporte, es_manana, eco, feriado, luna, extra, 
@@ -1142,7 +1157,7 @@ async def main_async():
     )
     imagen_bytes = await html_a_imagen(html_final)
 
-    # 7. Crear texto del mensaje (Caption de 3 líneas exactas)
+    # 7. Crear texto del mensaje (Caption de Telegram)
     icono_edicion = "☀️" if es_manana else "🌙"
     nombre_edicion = "Edición Mañana" if es_manana else "Edición Noche"
     dia_nombre = DIAS_ESP[ahora.weekday()]
@@ -1154,7 +1169,7 @@ async def main_async():
         f"📍 Longaví · Linares · Yerbas Buenas"
     )
 
-    # 8. Enviar
+    # 8. Enviar a Telegram
     print("📤 Enviando foto a Telegram...")
     enviar_foto_telegram(imagen_bytes, caption_text=caption)
 
