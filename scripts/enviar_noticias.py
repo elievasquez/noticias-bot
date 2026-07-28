@@ -9,7 +9,7 @@ import html
 import math
 import asyncio
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
@@ -392,13 +392,17 @@ async def html_a_imagen(html_content: str) -> bytes:
         await browser.close()
         return img_bytes
 
-def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, datos_combustible):
+def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, datos_noticias, datos_combustible):
     edicion_txt = "Edición de la mañana" if es_manana else "Edición de la noche"
     css_tema = CSS_MANANA if es_manana else CSS_NOCHE
     
-    dia_nombre = DIAS_ESP[ahora.weekday()]
-    mes_nombre = MESES_ESP[ahora.month - 1]
-    fecha_txt = f"{dia_nombre} {ahora.day} de {mes_nombre}, {ahora.year}"
+    # Textos dinámicos adaptados al horario
+    titulo_clima = "Clima para hoy" if es_manana else "Pronóstico clima para mañana"
+    subtitulo_heladas = "mínima de hoy en la madrugada" if es_manana else "mínima para mañana en la madrugada"
+
+    dia_nombre = DIAS_ESP[fecha_reporte.weekday()]
+    mes_nombre = MESES_ESP[fecha_reporte.month - 1]
+    fecha_txt = f"{dia_nombre} {fecha_reporte.day} de {mes_nombre}, {fecha_reporte.year}"
     hora_txt = f"Actualizado {ahora.strftime('%H:%M')} hrs"
 
     # Clima Cards
@@ -492,14 +496,14 @@ def renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, dat
   </div>
 
   <div class="seccion">
-    <div class="seccion-titulo"><span class="barra"></span>Clima</div>
+    <div class="seccion-titulo"><span class="barra"></span>{titulo_clima}</div>
     <div class="clima-fila">
       {clima_cards_html}
     </div>
 
     <div class="gauge-box">
       <div class="gauge-header">
-        <div class="gauge-titulo">Riesgo de helada — mínima de madrugada</div>
+        <div class="gauge-titulo">Riesgo de helada — {subtitulo_heladas}</div>
         <div class="gauge-nota">línea = 0°C</div>
       </div>
       <div class="gauge-track">
@@ -586,8 +590,8 @@ async def main_async():
         return
 
     es_manana = ahora.hour < 15
-    # En la mañana muestra el día de hoy (index 0). En la noche proyecta el día de mañana (index 1).
     idx_dia = 0 if es_manana else 1
+    fecha_reporte = ahora if es_manana else ahora + timedelta(days=1)
 
     # 1. Clima
     datos_clima = {}
@@ -619,7 +623,7 @@ async def main_async():
     datos_combustible = mejores_precios_combustible()
 
     # 4. Renderizado Dinámico
-    html_final = renderizar_plantilla_html(ahora, es_manana, datos_clima, datos_noticias, datos_combustible)
+    html_final = renderizar_plantilla_html(ahora, fecha_reporte, es_manana, datos_clima, datos_noticias, datos_combustible)
     imagen_bytes = await html_a_imagen(html_final)
 
     # 5. Enviar
