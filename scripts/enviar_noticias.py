@@ -825,7 +825,7 @@ async def html_a_imagen(html_content: str) -> bytes:
         elemento = await page.query_selector(".pagina")
         
         # Renderizado en JPEG al 92% de calidad para máxima nitidez y bajo peso (< 2 MB)
-        img_bytes = await elemento.screenshot(type="jpeg", quality=92, full_page=True)
+        img_bytes = await elemento.screenshot(type="jpeg", quality=92)
         
         await browser.close()
         return img_bytes
