@@ -26,8 +26,7 @@ from playwright.async_api import async_playwright
 # ==========================================
 
 ZONA_CL = ZoneInfo("America/Santiago")
-HORAS_DE_ENVIO = {9, 21}
-TOLERANCIA_MINUTOS = 180  # ventana de tolerancia por si GitHub Actions atrasa el cron
+TOLERANCIA_MINUTOS = 60  # ventana de tolerancia por si GitHub Actions atrasa el cron
 ARCHIVO_ESTADO_ENVIO = "estado_envio.json"
 UMBRAL_HELADA_C = 3.0
 
@@ -51,7 +50,7 @@ def edicion_objetivo(ahora):
     Devuelve 'manana', 'noche' o None si no corresponde enviar todavía.
     """
     minutos_ahora = ahora.hour * 60 + ahora.minute
-    for hora_objetivo, nombre in ((9, "manana"), (21, "noche")):
+    for hora_objetivo, nombre in ((9, "manana"), (23, "noche")):
         objetivo = hora_objetivo * 60
         if 0 <= (minutos_ahora - objetivo) <= TOLERANCIA_MINUTOS:
             return nombre
