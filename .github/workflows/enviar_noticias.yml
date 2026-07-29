@@ -2,7 +2,7 @@ name: Enviar Noticias Boletin
 
 on:
   schedule:
-    # 9:00 y 21:00 hora Chile — cubre horario de verano (UTC-3) e invierno (UTC-4)
+    # 9:00 y 22:25 hora Chile — cubre horario de verano (UTC-3) e invierno (UTC-4)
     - cron: '0 12,13,0,1 * * *'
   workflow_dispatch:
 
