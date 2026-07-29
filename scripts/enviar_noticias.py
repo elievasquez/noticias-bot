@@ -50,7 +50,7 @@ def edicion_objetivo(ahora):
     Devuelve 'manana', 'noche' o None si no corresponde enviar todavía.
     """
     minutos_ahora = ahora.hour * 60 + ahora.minute
-    for hora_objetivo, nombre in ((9, "manana"), (23, "noche")):
+    for hora_objetivo, nombre in ((9, "manana"), (21, "noche")):
         objetivo = hora_objetivo * 60
         if 0 <= (minutos_ahora - objetivo) <= TOLERANCIA_MINUTOS:
             return nombre
@@ -1298,6 +1298,14 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
         {lunar_days_html}
       </div>
     </div>
+
+    <!-- COMBUSTIBLES -->
+    <div class="combustible-box">
+      <div class="combustible-titulo">Combustible hoy <span class="nota">mejor precio en radio de 15 km</span></div>
+      <div class="precios-fila">
+        {combustibles_cards_html}
+      </div>
+    </div>
   </div>
 
   <!-- NOTICIAS -->
@@ -1311,16 +1319,8 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
     {html_futbol}
   </div>
 
-  <!-- COMBUSTIBLES -->
+  <!-- FRASE Y DATO CURIOSO -->
   <div class="seccion">
-    <div class="combustible-box">
-      <div class="combustible-titulo">Combustible hoy <span class="nota">mejor precio en radio de 15 km</span></div>
-      <div class="precios-fila">
-        {combustibles_cards_html}
-      </div>
-    </div>
-
-    <!-- FRASE Y DATO CURIOSO -->
     <div class="footer-boxes">
       <div class="footer-box">
         <div class="footer-box-icono">💭</div>
