@@ -4,8 +4,8 @@ on:
     # 09:00 AM Chile (12:00 UTC en Verano / 13:00 UTC en Invierno) - Todos los días
     - cron: '0 12,13 * * *'
     
-    # 23:15 PM Chile (02:00 UTC en Verano / 03:00 UTC en Invierno) - Todos los días
-    - cron: '15 2,3 * * *'
+    # 21:oo PM Chile (02:00 UTC en Verano / 03:00 UTC en Invierno) - Todos los días
+    - cron: '0 2,3 * * *'
   workflow_dispatch:
 permissions:
   contents: write
