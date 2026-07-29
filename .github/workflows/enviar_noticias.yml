@@ -1,38 +1,30 @@
 name: Enviar Noticias Boletin
-
 on:
   schedule:
     # 09:00 AM Chile (12:00 UTC en Verano / 13:00 UTC en Invierno) - Todos los días
     - cron: '0 12,13 * * *'
     
-    # 22:35 PM Chile (01:25 UTC en Verano / 02:25 UTC en Invierno) - Todos los días
-    - cron: '35 1,2 * * *'
-
+    # 23:00 PM Chile (02:00 UTC en Verano / 03:00 UTC en Invierno) - Todos los días
+    - cron: '0 2,3 * * *'
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   build-and-send:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
-
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           playwright install --with-deps chromium
-
       - name: Ejecutar script de envío
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -42,7 +34,6 @@ jobs:
           TZ: "America/Santiago"
           FORZAR_ENVIO: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
         run: python scripts/enviar_noticias.py
-
       - name: Guardar estado de último envío
         if: always()
         run: |
