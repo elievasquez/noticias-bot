@@ -50,7 +50,7 @@ def edicion_objetivo(ahora):
     Devuelve 'manana', 'noche' o None si no corresponde enviar todavía.
     """
     minutos_ahora = ahora.hour * 60 + ahora.minute
-    for hora_objetivo, nombre in ((9, "manana"), (21, "noche")):
+    for hora_objetivo, nombre in ((9, "manana"), (23, "noche")):
         objetivo = hora_objetivo * 60
         if 0 <= (minutos_ahora - objetivo) <= TOLERANCIA_MINUTOS:
             return nombre
@@ -215,6 +215,32 @@ def obtener_santoral_y_frase(ahora):
     dato = datos_maule[dia_num % len(datos_maule)]
     
     return {"santoral": santoral, "frase": frase, "autor": autor, "dato": dato}
+
+def obtener_articulo_utilidad(ahora):
+    articulos = [
+        {"categoria": "Hogar", "titulo": "Cómo prevenir la humedad en invierno",
+         "texto": "Ventila tu vivienda unos 10 minutos al día, incluso con frío, para renovar el aire y evitar condensación en las ventanas. Revisa techos y canaletas antes de las lluvias fuertes para prevenir filtraciones."},
+        {"categoria": "Salud", "titulo": "Hidratación en días de calor",
+         "texto": "Bebe agua de forma regular durante el día sin esperar a sentir sed, sobre todo si trabajas al aire libre. Evita las horas de mayor exposición solar (12:00 a 16:00) para labores físicas intensas."},
+        {"categoria": "Finanzas", "titulo": "Cómo armar un presupuesto mensual simple",
+         "texto": "Anota tus ingresos y gastos fijos del mes, separa un porcentaje para ahorro apenas recibas tu sueldo y revisa semanalmente en qué se te va el dinero para ajustar a tiempo."},
+        {"categoria": "Tecnología", "titulo": "Protege tu WhatsApp de intentos de robo",
+         "texto": "Activa la verificación en dos pasos en Ajustes > Cuenta > Verificación en dos pasos, y nunca compartas el código de 6 dígitos que llega por SMS, aunque te digan que es de un familiar."},
+        {"categoria": "Agro y Jardín", "titulo": "Cuidado de cultivos ante heladas",
+         "texto": "Riega el suelo antes de una helada, ya que la tierra húmeda retiene mejor el calor. Cubre las plantas sensibles con mallas o telas antes del anochecer y retíralas después del amanecer."},
+        {"categoria": "Seguridad Vial", "titulo": "Manejo seguro con niebla o lluvia",
+         "texto": "Reduce la velocidad y aumenta la distancia con el vehículo de adelante, usa las luces bajas (nunca las altas con niebla) y evita frenar de golpe sobre pavimento mojado."},
+        {"categoria": "Prevención", "titulo": "Cómo evitar incendios domésticos en invierno",
+         "texto": "No dejes estufas a leña o parafina encendidas sin supervisión, revisa que los ductos de calefacción estén despejados de material inflamable y ten un extintor accesible en la cocina."},
+        {"categoria": "Ahorro", "titulo": "Reduce tu cuenta de electricidad",
+         "texto": "Desconecta cargadores y aparatos en modo 'stand by', ya que igual consumen energía. Aprovecha la luz natural durante el día y cambia ampolletas antiguas por LED."},
+        {"categoria": "Primeros Auxilios", "titulo": "Qué hacer ante una quemadura leve",
+         "texto": "Enfría la zona con agua tibia o fría (nunca helada) durante al menos 10 minutos, no apliques pasta dental ni mantequilla, y cubre con un paño limpio antes de buscar atención médica."},
+        {"categoria": "Educación", "titulo": "Técnica Pomodoro para estudiar mejor",
+         "texto": "Estudia en bloques de 25 minutos con descansos de 5 minutos entre cada uno. Cada 4 bloques, toma un descanso más largo de 15 a 20 minutos para mantener la concentración."},
+    ]
+    dia_num = ahora.day
+    return articulos[dia_num % len(articulos)]
 
 # ==========================================
 # FÚTBOL (ESPN API)
@@ -810,6 +836,13 @@ CSS_MANANA = """
   .footer-box-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
   .footer-box-text { font-size: 12.5px; color: var(--text-primary); font-style: italic; line-height: 1.45; position: relative; }
 
+  /* ARTÍCULO DE UTILIDAD */
+  .articulo-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; page-break-inside: avoid; }
+  .articulo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .articulo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--accent); border: 1px solid var(--accent); padding: 2px 9px; border-radius: 6px; }
+  .articulo-titulo { font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+  .articulo-texto { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+
   .footer { margin: 24px 44px 0 44px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
 """
 
@@ -1043,6 +1076,13 @@ CSS_NOCHE = """
   .footer-box-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
   .footer-box-text { font-size: 12.5px; color: var(--text-primary); font-style: italic; line-height: 1.45; position: relative; }
 
+  /* ARTÍCULO DE UTILIDAD */
+  .articulo-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; page-break-inside: avoid; }
+  .articulo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .articulo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--accent); border: 1px solid var(--accent); padding: 2px 9px; border-radius: 6px; }
+  .articulo-titulo { font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+  .articulo-texto { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+
   .footer { margin: 24px 44px 0 44px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
 """
 
@@ -1068,7 +1108,8 @@ async def html_a_pdf(html_content: str) -> bytes:
         print(f"📄 Tamaño final del PDF: {len(pdf_bytes)/1024:.0f} KB")
         return pdf_bytes
 
-def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, luna, extra, datos_clima, datos_noticias, datos_combustible, html_futbol=""):
+def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, luna, extra, datos_clima, datos_noticias, datos_combustible, html_futbol="", articulo=None):
+    articulo = articulo or {"categoria": "Utilidad", "titulo": "", "texto": ""}
     edicion_txt = "Edición de la mañana" if es_manana else "Edición de la noche"
     css_tema = CSS_MANANA if es_manana else CSS_NOCHE
     
@@ -1333,6 +1374,15 @@ def renderizar_plantilla_html(ahora, fecha_reporte, es_manana, eco, feriado, lun
         <div class="footer-box-text">{extra['dato']}</div>
       </div>
     </div>
+
+    <!-- ARTÍCULO DE UTILIDAD -->
+    <div class="articulo-box">
+      <div class="articulo-header">
+        <span class="articulo-badge">📚 {articulo['categoria']}</span>
+      </div>
+      <div class="articulo-titulo">{articulo['titulo']}</div>
+      <div class="articulo-texto">{articulo['texto']}</div>
+    </div>
   </div>
 
   <div class="footer">
@@ -1401,6 +1451,7 @@ async def main_async():
     feriado = obtener_proximo_feriado(ahora)
     luna = obtener_fase_lunar_semanal(ahora)
     extra = obtener_santoral_y_frase(ahora)
+    articulo = obtener_articulo_utilidad(ahora)
 
     # 2. Clima
     datos_clima = {}
@@ -1458,7 +1509,8 @@ async def main_async():
     print("🎨 Generando HTML y renderizando PDF vectorial con Playwright...")
     html_final = renderizar_plantilla_html(
         ahora, fecha_reporte, es_manana, eco, feriado, luna, extra, 
-        datos_clima, datos_noticias, datos_combustible, html_futbol
+        datos_clima, datos_noticias, datos_combustible, html_futbol,
+        articulo=articulo
     )
     pdf_bytes = await html_a_pdf(html_final)
 
