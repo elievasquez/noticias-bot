@@ -82,7 +82,7 @@ def obtener_indicadores_economicos():
     except Exception as e:
         logging.warning(f"Error al obtener indicadores económicos: {e}")
         return {"uf": "$37.500", "dolar": "$940,00"}
-
+        
 MESES_ES = {
     1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
     5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
@@ -91,14 +91,18 @@ MESES_ES = {
 
 def obtener_proximo_feriado(ahora):
     try:
-        year = ahora.year
-        url = f"https://date.nager.at/api/v3/PublicHolidays/{year}/CL"
+        # API pública global y sin bloqueos por IP de GitHub Actions
+        url = f"https://date.nager.at/api/v3/PublicHolidays/{ahora.year}/CL"
         
-        headers = {'User-Agent': 'Mozilla/5.0'}
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
         res_resp = HTTP_SESSION.get(url, headers=headers, timeout=5)
         res_resp.raise_for_status()
         feriados = res_resp.json()
         
+        # Normalizar fecha de comparación
         hoy_date = ahora.date() if isinstance(ahora, datetime.datetime) else ahora
         hoy_str = hoy_date.strftime("%Y-%m-%d")
         
@@ -108,6 +112,8 @@ def obtener_proximo_feriado(ahora):
                 fecha_f = datetime.datetime.strptime(fecha_str, "%Y-%m-%d").date()
                 dias_faltantes = (fecha_f - hoy_date).days
                 
+                # Nombre en español provisto por Nager.Date
+                nombre_feriado = f.get("localName") or f.get("name")
                 fecha_formateada = f"{fecha_f.day} de {MESES_ES.get(fecha_f.month, '')}"
                 
                 if dias_faltantes == 0:
@@ -116,9 +122,6 @@ def obtener_proximo_feriado(ahora):
                     texto_dias = "¡Mañana!"
                 else:
                     texto_dias = f"Faltan {dias_faltantes} días"
-                
-                # Nager.Date entrega el nombre en localName (ej: "Fiestas Patrias")
-                nombre_feriado = f.get("localName") or f.get("name")
                 
                 return {
                     "nombre": nombre_feriado,
@@ -129,8 +132,9 @@ def obtener_proximo_feriado(ahora):
     except Exception as e:
         logging.warning(f"Error al obtener próximo feriado: {e}")
         
+    # Respaldo de seguridad en caso de fallo de red
     return {"nombre": "Fiestas Patrias", "fecha": "18 de Septiembre", "dias": "Próximamente"}
-
+    
 def obtener_fase_lunar_semanal(ahora):
     iconos = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"]
     nombres = ["Nueva", "Creciente", "Cuarto C.", "Gibosa C.", "Llena", "Gibosa M.", "Cuarto M.", "Menguante"]
