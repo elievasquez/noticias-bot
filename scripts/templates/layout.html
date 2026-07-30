@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  {css_tema}
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div class="masthead">
+    <div class="masthead-top">
+      <div>
+        <span class="eyebrow">{edicion_txt}</span>
+        <div class="titulo">Boletín <span class="acento">Maule</span></div>
+      </div>
+      <div class="fecha-box">
+        <div class="dia">{fecha_txt}</div>
+        <div class="santoral">😇 Santoral: {santoral}</div>
+        <div>{hora_txt}</div>
+      </div>
+    </div>
+    <div class="masthead-rule"></div>
+    <div class="comunas"><b>Longaví</b> · <b>Linares</b> · <b>Yerbas Buenas</b> — Región del Maule</div>
+  </div>
+
+  <!-- INDICADORES ECONÓMICOS -->
+  <div class="metrics-bar">
+    <div class="metric-item">
+      <div class="metric-icono" style="background:{dolar_icon_color}22; color:{dolar_icon_color};">{dolar_icon}</div>
+      <div>Dólar<div class="metric-value">{dolar_val}</div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-icono" style="background:{uf_icon_color}22; color:{uf_icon_color};">{uf_icon}</div>
+      <div>UF<div class="metric-value">{uf_val}</div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-icono" style="background:{uv_icon_color}22; color:{uv_icon_color};">{uv_icon}</div>
+      <div>Máx UV<div class="metric-value">{uv_prom_val}</div></div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-icono" style="background:{aire_icon_color}22; color:{aire_icon_color};">{aire_icon}</div>
+      <div>Aire Maule<div class="metric-value" style="color:#22c55e;">Bueno</div></div>
+    </div>
+  </div>
+
+  <!-- PRÓXIMO FERIADO -->
+  <div class="holiday-box">
+    <div>
+      <div class="holiday-title">🎉 Próximo Feriado en Chile</div>
+      <div class="holiday-desc">{feriado_fecha} · {feriado_nombre}</div>
+    </div>
+    <div class="holiday-badge">{feriado_dias}</div>
+  </div>
+
+  <!-- CLIMA Y HELADAS -->
+  <div class="seccion">
+    <div class="seccion-titulo"><span class="barra"></span>{titulo_clima}</div>
+    <div class="clima-fila">
+      {clima_cards_html}
+    </div>
+
+    <div class="gauge-box">
+      <div class="gauge-header">
+        <div class="gauge-titulo">Riesgo de helada — {subtitulo_heladas}</div>
+        <div class="gauge-nota">línea = 0°C</div>
+      </div>
+      <div class="gauge-track">
+        <div class="gauge-track-riesgo" style="width:{pos_cero:.1f}%;"></div>
+        <div class="gauge-cero" style="left:{pos_cero:.1f}%;"></div>
+        <div class="gauge-cero-label" style="left:{pos_cero:.1f}%;">0°</div>
+        {gauge_puntos_html}
+      </div>
+      <div class="gauge-escala"><span>-2°C</span><span>10°C</span></div>
+    </div>
+
+    <!-- FASE LUNAR SEMANAL -->
+    <div class="lunar-bar">
+      <div class="lunar-title">🌙 Fase Lunar Semanal</div>
+      <div class="lunar-days">
+        {lunar_days_html}
+      </div>
+    </div>
+
+    <!-- COMBUSTIBLES -->
+    <div class="combustible-box">
+      <div class="combustible-titulo">Combustible hoy <span class="nota">mejor precio en radio de 15 km</span></div>
+      <div class="precios-fila">
+        {combustibles_cards_html}
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTICIAS -->
+  <div class="seccion">
+    <div class="seccion-titulo"><span class="barra"></span>Noticias</div>
+    {html_destacada}
+    <div class="noticias-cols">
+      <div class="col">{noticias_col1}</div>
+      <div class="col">{noticias_col2}</div>
+    </div>
+    {html_futbol}
+  </div>
+
+  <!-- FRASE Y DATO CURIOSO -->
+  <div class="seccion">
+    <div class="footer-boxes">
+      <div class="footer-box">
+        <div class="footer-box-icono">💭</div>
+        <div class="footer-box-title">💭 Frase del Día</div>
+        <div class="footer-box-text">{frase} — <strong>{autor}</strong></div>
+      </div>
+      <div class="footer-box" style="border-left-color: #facc15;">
+        <div class="footer-box-icono">💡</div>
+        <div class="footer-box-title">💡 Dato Curioso Maule</div>
+        <div class="footer-box-text">{dato_maule}</div>
+      </div>
+    </div>
+
+    <!-- ARTÍCULO DE UTILIDAD -->
+    <div class="articulo-box">
+      <div class="articulo-header">
+        <span class="articulo-badge">📚 {articulo_categoria}</span>
+      </div>
+      <div class="articulo-titulo">{articulo_titulo}</div>
+      <div class="articulo-texto">{articulo_texto}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>By Eliecer Vásquez</span>
+    <span>Longaví · Linares · Yerbas Buenas, Región del Maule</span>
+  </div>
+</div>
+</body>
+</html>
