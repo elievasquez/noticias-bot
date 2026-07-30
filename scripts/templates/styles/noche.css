@@ -1,0 +1,237 @@
+@import url('https://rsms.me/inter/inter.css');
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+:root {
+  --bg-page: #0F172A;
+  --bg-card: #1E293B;
+  --border-color: #334155;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --accent: #38BDF8;
+  --accent-bg: rgba(56, 189, 248, 0.12);
+}
+
+body { 
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+  color: var(--text-primary); 
+  background: var(--bg-page); 
+  width: 100%; 
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased; 
+  -webkit-print-color-adjust: exact;
+  line-height: 1.48;
+}
+
+.pagina { padding: 0 0 32px 0; background: var(--bg-page); }
+
+.masthead { padding: 36px 44px 20px 44px; }
+.masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
+.eyebrow { font-size: 11.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--accent); font-weight: 700; background: var(--bg-card); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); }
+.titulo { font-weight: 800; font-size: 38px; color: var(--text-primary); letter-spacing: -0.02em; margin-top: 8px; line-height: 1.1; }
+.titulo .acento { color: var(--accent); }
+
+.fecha-box { text-align: right; color: var(--text-secondary); font-size: 13.5px; line-height: 1.4; }
+.fecha-box .dia { font-size: 15px; color: var(--text-primary); font-weight: 600; }
+.fecha-box .santoral { font-size: 12.5px; color: var(--accent); font-weight: 500; margin-top: 2px; }
+
+.masthead-rule { margin-top: 18px; height: 2px; background: var(--border-color); position: relative; }
+.masthead-rule::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 90px; background: var(--accent); }
+.comunas { margin-top: 12px; color: var(--text-secondary); font-size: 13.5px; letter-spacing: 0.1px; }
+.comunas b { color: var(--text-primary); font-weight: 600; }
+
+/* METRICAS */
+.metrics-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 14px 16px; border-radius: 12px; margin: 16px 44px 0 44px; }
+.metric-item { display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
+.metric-icono { width: 34px; height: 34px; min-width: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.metric-value { font-weight: 700; font-size: 14.5px; color: var(--text-primary); margin-top: 2px; }
+
+/* FERIADO */
+.holiday-box { margin: 16px 44px 0 44px; background: var(--accent-bg); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+.holiday-box::before { content: "🎉"; position: absolute; right: -6px; top: -14px; font-size: 64px; opacity: 0.10; transform: rotate(-10deg); }
+.holiday-title { font-size: 11.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+.holiday-desc { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+.holiday-badge { background: var(--accent); color: #0F172A; font-weight: 700; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; }
+
+/* SECCIONES */
+.seccion { padding: 22px 44px 0 44px; page-break-inside: avoid; }
+.seccion-titulo { font-weight: 700; font-size: 19px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; margin-bottom: 14px; letter-spacing: -0.01em; }
+.seccion-titulo .barra { width: 16px; height: 4px; background: var(--accent); border-radius: 2px; display: inline-block; }
+
+/* CLIMA CARDS */
+.clima-fila { display: flex; gap: 14px; }
+.clima-card { flex: 1; border-radius: 12px; padding: 16px; position: relative; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.35); color: rgba(255,255,255,0.95); }
+.clima-card.texto-oscuro { color: rgba(15,23,42,0.85); }
+.clima-icono-fondo { position: absolute; right: -10px; bottom: -16px; font-size: 74px; opacity: 0.22; line-height: 1; }
+.clima-card .ciudad { font-weight: 700; font-size: 16px; position: relative; }
+.clima-card .desc { font-size: 12.5px; opacity: 0.85; margin-top: 2px; font-weight: 500; position: relative; }
+.clima-fila-datos { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 14px; position: relative; }
+.clima-card .temp { font-size: 38px; font-weight: 800; line-height: 0.9; letter-spacing: -0.03em; text-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+.clima-card .minmax { font-size: 12px; opacity: 0.85; font-weight: 500; }
+.clima-card .viento { font-size: 12px; font-weight: 600; margin-top: 3px; opacity: 0.95; }
+
+/* HELADAS GAUGE */
+.gauge-box { margin-top: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px 24px 24px 24px; }
+.gauge-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; }
+.gauge-titulo { font-weight: 700; font-size: 15px; color: #F87171; }
+.gauge-nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.gauge-track { position: relative; height: 6px; background: #334155; border-radius: 3px; }
+.gauge-track-riesgo { position: absolute; left: 0; top: 0; height: 6px; background: #991B1B; border-radius: 3px 0 0 3px; }
+.gauge-cero { position: absolute; top: -10px; width: 2px; height: 26px; background: #94A3B8; }
+.gauge-cero-label { position: absolute; top: -28px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--text-primary); background: #0F172A; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); }
+
+.gauge-punto { position: absolute; top: -7px; width: 20px; height: 20px; margin-left: -10px; }
+.gauge-punto .bola { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); border: 3px solid #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.gauge-punto.alerta .bola { background: #F87171; }
+.gauge-punto .etiqueta { position: absolute; left: 50%; font-size: 11px; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: flex; gap: 4px; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #0F172A; color: var(--text-primary); border: 1px solid var(--border-color); }
+.gauge-punto.pos-abajo .etiqueta { top: 25px; }
+.gauge-punto.pos-arriba .etiqueta { bottom: 25px; }
+.gauge-punto .etiqueta b { font-weight: 700; }
+.gauge-punto.alerta .etiqueta b { color: #F87171; }
+.gauge-escala { display: flex; justify-content: space-between; margin-top: 32px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+
+/* FASE LUNAR */
+.lunar-bar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-top: 14px; }
+.lunar-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px; text-align: center; }
+.lunar-days { display: flex; justify-content: space-around; align-items: center; }
+.lunar-day { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+.lunar-day.today { color: #FACC15; font-weight: 700; transform: scale(1.05); }
+.lunar-icon { font-size: 18px; margin: 2px 0; }
+
+/* NOTICIA DESTACADA */
+.destacada-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  page-break-inside: avoid;
+}
+.destacada-img {
+  width: 220px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  min-width: 220px;
+}
+.destacada-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.destacada-badge {
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: #EF4444;
+  color: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.destacada-titulo {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.destacada-bajada {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.destacada-fuente {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* NOTICIAS OPTIMIZADAS */
+.noticias-cols { display: flex; gap: 18px; margin-top: 4px; }
+.col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.subgrupo { margin-bottom: 0; page-break-inside: avoid; }
+.subgrupo-titulo { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
+
+.noticia { 
+  font-size: 13.5px; 
+  line-height: 1.45; 
+  padding: 10px 14px; 
+  background: var(--bg-card); 
+  border-left: 3px solid var(--accent); 
+  border-radius: 0 8px 8px 0; 
+  border-top: 1px solid #2B394A; 
+  border-right: 1px solid #2B394A; 
+  border-bottom: 1px solid #2B394A; 
+  page-break-inside: avoid;
+}
+.noticia .titulo-n { color: var(--text-primary); font-weight: 700; font-size: 13.5px; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: 4px; }
+
+.noticia .bajada-n { 
+  color: var(--text-secondary); 
+  font-size: 12px; 
+  font-weight: 400; 
+  line-height: 1.45; 
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.noticia .fuente-n { color: var(--text-muted); font-size: 11px; margin-top: 6px; font-weight: 500; }
+
+/* TABLA FÚTBOL */
+.futbol-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; page-break-inside: avoid; }
+.futbol-titulo { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.futbol-subtitulo { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.futbol-tabla { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.futbol-tabla th { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; padding: 0 0 6px 0; text-align: center; }
+.futbol-tabla th.izq { text-align: left; }
+.futbol-tabla td { padding: 6px 0; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--border-color); text-align: center; }
+.futbol-pos { font-weight: 700; color: var(--text-muted); text-align: left !important; }
+.futbol-escudo { width: 18px; height: 18px; object-fit: contain; }
+.futbol-equipo { font-size: 12.5px; font-weight: 600; color: var(--text-primary); text-align: left !important; }
+.futbol-pts { font-size: 12.5px; font-weight: 800; color: var(--accent); }
+.futbol-dg-pos { color: #4ADE80; font-weight: 600; }
+.futbol-dg-neg { color: #F87171; font-weight: 600; }
+.futbol-destacado { background: rgba(56, 189, 248, 0.08); }
+.futbol-destacado .futbol-pos { border-left: 3px solid var(--accent); padding-left: 6px; color: var(--accent); }
+
+/* COMBUSTIBLES */
+.combustible-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 20px; page-break-inside: avoid; }
+.combustible-titulo { color: var(--text-primary); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+.combustible-titulo span.nota { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.precios-fila { display: flex; gap: 12px; margin-top: 12px; }
+.precio-card { flex: 1; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.precio-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 4px; }
+.precio-card .monto { font-size: 20px; color: var(--text-primary); font-weight: 800; margin-top: 2px; letter-spacing: -0.02em; }
+.precio-card .ciudad-p { font-size: 11.5px; color: var(--text-primary); font-weight: 600; margin-top: 3px; }
+.precio-card .direccion-p { font-size: 10px; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; min-height: 24px; display: flex; align-items: center; justify-content: center; }
+
+/* FOOTER & EXTRAS */
+.footer-boxes { display: flex; gap: 14px; margin-top: 14px; page-break-inside: avoid; }
+.footer-box { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--accent); padding: 12px 14px; border-radius: 0 10px 10px 0; position: relative; overflow: hidden; }
+.footer-box-icono { position: absolute; right: 2px; top: -6px; font-size: 42px; opacity: 0.12; }
+.footer-box-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
+.footer-box-text { font-size: 12.5px; color: var(--text-primary); font-style: italic; line-height: 1.45; position: relative; }
+
+/* ARTÍCULO DE UTILIDAD */
+.articulo-box { margin-top: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; page-break-inside: avoid; }
+.articulo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.articulo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--accent); border: 1px solid var(--accent); padding: 2px 9px; border-radius: 6px; }
+.articulo-titulo { font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+.articulo-texto { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+
+.footer { margin: 24px 44px 0 44px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
