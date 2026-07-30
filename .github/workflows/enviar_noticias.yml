@@ -3,9 +3,8 @@ on:
   schedule:
     # 09:00 AM Chile (12:00 UTC en Verano / 13:00 UTC en Invierno) - Todos los días
     - cron: '0 12,13 * * *'
-    
-    # 21:oo PM Chile (02:00 UTC en Verano / 03:00 UTC en Invierno) - Todos los días
-    - cron: '0 2,3 * * *'
+    # 00:00 AM Chile (03:00 UTC en Verano / 04:00 UTC en Invierno) - Todos los días
+    - cron: '0 3,4 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -28,6 +27,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           playwright install --with-deps chromium
+      - name: Debug horario y presencia de secrets  # temporal, eliminar después de probar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CNE_EMAIL: ${{ secrets.CNE_EMAIL }}
+          CNE_PASSWORD: ${{ secrets.CNE_PASSWORD }}
+          TZ: "America/Santiago"
+          FORZAR_ENVIO: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+        run: |
+          python - <<'PY'
+          import os, datetime, zoneinfo
+          ahora = datetime.datetime.now(zoneinfo.ZoneInfo("America/Santiago"))
+          minutos = ahora.hour * 60 + ahora.minute
+          print("Ahora Chile:", ahora.isoformat())
+          print("Minutos hoy:", minutos)
+          for h,name in ((9,'manana'),(0,'noche')):
+              objetivo = h * 60
+              print(f"objetivo {h:02d}:00 -> diff = {minutos - objetivo} minutos | abs diff = {abs(minutos - objetivo)}")
+          print("FORZAR_ENVIO:", os.getenv("FORZAR_ENVIO"))
+          print("TELEGRAM_BOT_TOKEN set?:", bool(os.getenv("TELEGRAM_BOT_TOKEN")))
+          print("TELEGRAM_CHAT_ID set?:", bool(os.getenv("TELEGRAM_CHAT_ID")))
+          PY
       - name: Ejecutar script de envío
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
