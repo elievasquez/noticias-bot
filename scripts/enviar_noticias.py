@@ -85,19 +85,21 @@ def obtener_indicadores_economicos():
 
 def obtener_proximo_feriado(ahora):
     try:
-        url = "https://apis.digital.gob.cl/fl/feriados/v1"
+        url = "https://api.boostr.cl/feriados/en.json"
         headers = {'User-Agent': 'Mozilla/5.0'}
-        feriados = HTTP_SESSION.get(url, headers=headers, timeout=8).json()
+        res = HTTP_SESSION.get(url, headers=headers, timeout=5).json()
+        feriados = res.get("data", [])
         
         hoy_str = ahora.strftime("%Y-%m-%d")
         for f in feriados:
-            if f["fecha"] >= hoy_str:
-                fecha_f = datetime.datetime.strptime(f["fecha"], "%Y-%m-%d").date()
+            # f["date"] reemplaza a f["fecha"]
+            if f.get("date") >= hoy_str:
+                fecha_f = datetime.datetime.strptime(f["date"], "%Y-%m-%d").date()
                 dias_faltantes = (fecha_f - ahora.date()).days
                 
                 texto_dias = "¡HOY!" if dias_faltantes == 0 else (f"Faltan {dias_faltantes} días" if dias_faltantes > 1 else "¡Mañana!")
                 return {
-                    "nombre": f["nombre"],
+                    "nombre": f.get("title"),  # f["title"] reemplaza a f["nombre"]
                     "fecha": fecha_f.strftime("%d de %B"),
                     "dias": texto_dias
                 }
