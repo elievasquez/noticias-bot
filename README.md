@@ -155,6 +155,10 @@ principales están al inicio del archivo:
   la edición de mañana (`CSS_MANANA`) y de noche (`CSS_NOCHE`).
 
 ---
+## Demostración
+
+<img src="demo.jpg" width="621" alt="Demostraciòn">
+
 
 ## By Eliecer Vásquez
 Longaví · Linares · Yerbas Buenas, Región del Maule
