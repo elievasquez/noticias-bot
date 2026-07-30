@@ -86,25 +86,31 @@ def obtener_indicadores_economicos():
 def obtener_proximo_feriado(ahora):
     try:
         url = "https://api.boostr.cl/feriados/en.json"
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        res = HTTP_SESSION.get(url, headers=headers, timeout=5).json()
-        feriados = res.get("data", [])
+        # Incluimos un User-Agent completo para evitar bloqueos
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        res_resp = HTTP_SESSION.get(url, headers=headers, timeout=5)
+        res_resp.raise_for_status()
+        res = res_resp.json()
         
+        feriados = res.get("data", [])
         hoy_str = ahora.strftime("%Y-%m-%d")
+        
         for f in feriados:
-            # f["date"] reemplaza a f["fecha"]
             if f.get("date") >= hoy_str:
                 fecha_f = datetime.datetime.strptime(f["date"], "%Y-%m-%d").date()
                 dias_faltantes = (fecha_f - ahora.date()).days
                 
                 texto_dias = "¡HOY!" if dias_faltantes == 0 else (f"Faltan {dias_faltantes} días" if dias_faltantes > 1 else "¡Mañana!")
                 return {
-                    "nombre": f.get("title"),  # f["title"] reemplaza a f["nombre"]
+                    "nombre": f.get("title"),
                     "fecha": fecha_f.strftime("%d de %B"),
                     "dias": texto_dias
                 }
     except Exception as e:
         logging.warning(f"Error al obtener próximo feriado: {e}")
+        
     return {"nombre": "Fiestas Patrias", "fecha": "18 de Septiembre", "dias": "Próximamente"}
 
 def obtener_fase_lunar_semanal(ahora):
