@@ -83,31 +83,55 @@ def obtener_indicadores_economicos():
         logging.warning(f"Error al obtener indicadores económicos: {e}")
         return {"uf": "$37.500", "dolar": "$940,00"}
 
+MESES_ES = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+    5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+    9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+}
+
 def obtener_proximo_feriado(ahora):
     try:
         url = "https://api.boostr.cl/feriados/en.json"
-        # Incluimos un User-Agent completo para evitar bloqueos
+        
+        # Cabeceras completas para emular un navegador real
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'es-ES,es;q=0.9',
         }
+        
         res_resp = HTTP_SESSION.get(url, headers=headers, timeout=5)
         res_resp.raise_for_status()
         res = res_resp.json()
         
         feriados = res.get("data", [])
-        hoy_str = ahora.strftime("%Y-%m-%d")
+        
+        # Asegurar que 'ahora' se trate como date
+        hoy_date = ahora.date() if isinstance(ahora, datetime.datetime) else ahora
+        hoy_str = hoy_date.strftime("%Y-%m-%d")
         
         for f in feriados:
-            if f.get("date") >= hoy_str:
-                fecha_f = datetime.datetime.strptime(f["date"], "%Y-%m-%d").date()
-                dias_faltantes = (fecha_f - ahora.date()).days
+            fecha_str = f.get("date")
+            if fecha_str and fecha_str >= hoy_str:
+                fecha_f = datetime.datetime.strptime(fecha_str, "%Y-%m-%d").date()
+                dias_faltantes = (fecha_f - hoy_date).days
                 
-                texto_dias = "¡HOY!" if dias_faltantes == 0 else (f"Faltan {dias_faltantes} días" if dias_faltantes > 1 else "¡Mañana!")
+                # Formato de fecha en español
+                fecha_formateada = f"{fecha_f.day} de {MESES_ES.get(fecha_f.month, '')}"
+                
+                if dias_faltantes == 0:
+                    texto_dias = "¡HOY!"
+                elif dias_faltantes == 1:
+                    texto_dias = "¡Mañana!"
+                else:
+                    texto_dias = f"Faltan {dias_faltantes} días"
+                
                 return {
                     "nombre": f.get("title"),
-                    "fecha": fecha_f.strftime("%d de %B"),
+                    "fecha": fecha_formateada,
                     "dias": texto_dias
                 }
+                
     except Exception as e:
         logging.warning(f"Error al obtener próximo feriado: {e}")
         
