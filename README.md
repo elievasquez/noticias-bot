@@ -1,9 +1,9 @@
 # 📰 Boletín automático — Longaví / Linares / Yerbas Buenas
 
 Bot que corre en GitHub Actions y te manda por Telegram, todos los días a las
-**9:00** y a las **21:00** (hora de Chile), un boletín en **una sola imagen
-en alta resolución** con:
+**9:00** y a las **21:00** (hora de Chile), un boletín en **PDF** con:
 
+- Noticia destacada del día
 - Noticias locales de Longaví, Linares y Yerbas Buenas
 - 10 categorías de noticias: locales, Chile, Mundo, Salud, Tecnología,
   Deportes, Entretención y Tendencias
@@ -14,18 +14,17 @@ en alta resolución** con:
 - Fase lunar semanal
 - Tabla de posiciones del fútbol chileno
 - Frase del día y un dato curioso de la Región del Maule
+- Tips Útiles de distintas categorías, Educación, Salud Hogar entre otros
 
 No necesita servidor propio: todo corre gratis en GitHub Actions.
 
 **Formato:** cada envío llega como **un solo mensaje de Telegram**, un
-documento de imagen (JPG) generado renderizando una plantilla HTML con
-Playwright/Chromium — así se evita la compresión de imagen que aplica
-Telegram a las fotos normales, y siempre se ve nítido sin importar el tamaño
-del boletín.
+documento PDF.
 
 La edición de las **9:00** muestra el clima y la temperatura del día en
-curso. La edición de las **21:00** muestra el pronóstico para la madrugada
-y el día siguiente, para que sirva como boletín "para mañana".
+curso. Con una paleta de colores clara.
+La edición de las **21:00** muestra el pronóstico para la madrugada
+y el día siguiente, para que sirva como boletín "para mañana". Con una paleta de colores oscura.
 
 ---
 
