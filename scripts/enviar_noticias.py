@@ -91,22 +91,14 @@ MESES_ES = {
 
 def obtener_proximo_feriado(ahora):
     try:
-        url = "https://api.boostr.cl/feriados/en.json"
+        year = ahora.year
+        url = f"https://date.nager.at/api/v3/PublicHolidays/{year}/CL"
         
-        # Cabeceras completas para emular un navegador real
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'es-ES,es;q=0.9',
-        }
-        
+        headers = {'User-Agent': 'Mozilla/5.0'}
         res_resp = HTTP_SESSION.get(url, headers=headers, timeout=5)
         res_resp.raise_for_status()
-        res = res_resp.json()
+        feriados = res_resp.json()
         
-        feriados = res.get("data", [])
-        
-        # Asegurar que 'ahora' se trate como date
         hoy_date = ahora.date() if isinstance(ahora, datetime.datetime) else ahora
         hoy_str = hoy_date.strftime("%Y-%m-%d")
         
@@ -116,7 +108,6 @@ def obtener_proximo_feriado(ahora):
                 fecha_f = datetime.datetime.strptime(fecha_str, "%Y-%m-%d").date()
                 dias_faltantes = (fecha_f - hoy_date).days
                 
-                # Formato de fecha en español
                 fecha_formateada = f"{fecha_f.day} de {MESES_ES.get(fecha_f.month, '')}"
                 
                 if dias_faltantes == 0:
@@ -126,8 +117,11 @@ def obtener_proximo_feriado(ahora):
                 else:
                     texto_dias = f"Faltan {dias_faltantes} días"
                 
+                # Nager.Date entrega el nombre en localName (ej: "Fiestas Patrias")
+                nombre_feriado = f.get("localName") or f.get("name")
+                
                 return {
-                    "nombre": f.get("title"),
+                    "nombre": nombre_feriado,
                     "fecha": fecha_formateada,
                     "dias": texto_dias
                 }
