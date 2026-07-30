@@ -54,13 +54,13 @@ def edicion_objetivo(ahora):
 
     Objetivos:
       - 09:00 -> 'manana'
-      - 00:20 -> 'noche'  (medianoche + 20 min)
+      - 21:00 -> 'noche'  (21:00 hora local)
     La comparación usa tolerancia simétrica (±TOLERANCIA_MINUTOS).
     """
     minutos_ahora = ahora.hour * 60 + ahora.minute
     objetivos = (
         (9 * 60 + 0, "manana"),   # 09:00 => 540
-        (0 * 60 + 20, "noche"),   # 00:20 => 20
+        (21 * 60 + 0, "noche"),   # 21:00 => 1260
     )
     for objetivo_minutos, nombre in objetivos:
         if abs(minutos_ahora - objetivo_minutos) <= TOLERANCIA_MINUTOS:
